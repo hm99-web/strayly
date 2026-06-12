@@ -31,6 +31,50 @@ export interface DogStatusLike {
   last_fed_at: string | null;
 }
 
+export interface DogBadgeLike extends DogStatusLike {
+  vaccination_status: string;
+  sterilization_status: string;
+  has_puppies: boolean;
+}
+
+export interface BadgeDescriptor {
+  key: string;
+  label: string;
+  /** Hex background; badges always render white text. */
+  color: string;
+}
+
+/** Single source of badge derivation for cards, markers callouts and detail. */
+export function getBadges(dog: DogBadgeLike): BadgeDescriptor[] {
+  const badges: BadgeDescriptor[] = [];
+  if (dog.has_active_emergency) {
+    badges.push({ key: 'emergency', label: 'Emergency', color: palette.status.emergency });
+  }
+  if (dog.status === 'missing') {
+    badges.push({ key: 'missing', label: 'Missing', color: palette.status.missing });
+  }
+  if (dog.health_status === 'injured' || dog.health_status === 'sick') {
+    badges.push({
+      key: dog.health_status,
+      label: dog.health_status === 'injured' ? 'Injured' : 'Sick',
+      color: palette.status.injured,
+    });
+  }
+  if (dog.health_status === 'pregnant') {
+    badges.push({ key: 'pregnant', label: 'Pregnant', color: palette.badge.pregnant });
+  }
+  if (dog.has_puppies || dog.health_status === 'nursing') {
+    badges.push({ key: 'puppies', label: 'Puppies', color: palette.badge.puppies });
+  }
+  if (dog.vaccination_status === 'yes') {
+    badges.push({ key: 'vaccinated', label: 'Vaccinated', color: palette.badge.vaccinated });
+  }
+  if (dog.sterilization_status === 'yes') {
+    badges.push({ key: 'sterilized', label: 'Sterilized', color: palette.badge.sterilized });
+  }
+  return badges;
+}
+
 /**
  * Single source of marker/list color priority:
  * emergency > injured/sick > missing > feeding staleness.
