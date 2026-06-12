@@ -63,15 +63,6 @@ interface DogSearchRow {
   distance_m: number | null;
 }
 
-interface DogSearchFilters {
-  p_feeding_status?: string | null;
-  p_vaccinated?: TriState | null;
-  p_sterilized?: TriState | null;
-  p_health?: DogHealthStatus[] | null;
-  p_has_emergency?: boolean | null;
-  p_puppies?: boolean | null;
-}
-
 export type Database = {
   public: {
     Tables: {
@@ -90,7 +81,15 @@ export type Database = {
           created_at: string;
           updated_at: string;
         };
-        Insert: never;
+        Insert: {
+          id: string;
+          username?: string | null;
+          display_name?: string;
+          avatar_path?: string | null;
+          bio?: string | null;
+          role?: UserRole;
+          is_anonymous?: boolean;
+        };
         Update: {
           username?: string | null;
           display_name?: string;
@@ -246,7 +245,9 @@ export type Database = {
           note?: string | null;
           recorded_by?: string;
         };
-        Update: never;
+        Update: {
+          note?: string | null;
+        };
         Relationships: [];
       };
       feeding_records: {
@@ -413,8 +414,19 @@ export type Database = {
           metadata: Json;
           created_at: string;
         };
-        Insert: never;
-        Update: never;
+        Insert: {
+          dog_id: string;
+          actor_id?: string | null;
+          activity_type: ActivityType;
+          ref_table?: string | null;
+          ref_id?: string | null;
+          summary?: string | null;
+          metadata?: Json;
+        };
+        Update: {
+          summary?: string | null;
+          metadata?: Json;
+        };
         Relationships: [];
       };
       notifications: {
@@ -429,7 +441,15 @@ export type Database = {
           push_sent: boolean;
           created_at: string;
         };
-        Insert: never;
+        Insert: {
+          user_id: string;
+          type: NotificationType;
+          title: string;
+          body?: string | null;
+          data?: Json;
+          read_at?: string | null;
+          push_sent?: boolean;
+        };
         Update: { read_at?: string | null };
         Relationships: [];
       };
@@ -461,7 +481,7 @@ export type Database = {
       dog_follows: {
         Row: { user_id: string; dog_id: string; created_at: string };
         Insert: { user_id: string; dog_id: string };
-        Update: never;
+        Update: { user_id?: string; dog_id?: string };
         Relationships: [];
       };
       comments: {
@@ -481,7 +501,7 @@ export type Database = {
       upvotes: {
         Row: { user_id: string; target_type: string; target_id: string; created_at: string };
         Insert: { user_id?: string; target_type: string; target_id: string };
-        Update: never;
+        Update: { target_type?: string; target_id?: string };
         Relationships: [];
       };
       trust_events: {
@@ -493,8 +513,17 @@ export type Database = {
           ref: Json;
           created_at: string;
         };
-        Insert: never;
-        Update: never;
+        Insert: {
+          user_id: string;
+          event_type: string;
+          points: number;
+          ref?: Json;
+        };
+        Update: {
+          event_type?: string;
+          points?: number;
+          ref?: Json;
+        };
         Relationships: [];
       };
       content_reports: {
@@ -525,7 +554,7 @@ export type Database = {
         Relationships: [];
       };
     };
-    Views: Record<string, never>;
+    Views: { [_ in never]: never };
     Functions: {
       fn_feeding_status: {
         Args: { p_last_fed_at: string | null };
@@ -536,9 +565,15 @@ export type Database = {
           p_lat: number;
           p_lng: number;
           p_radius_m?: number;
+          p_feeding_status?: string | null;
+          p_vaccinated?: TriState | null;
+          p_sterilized?: TriState | null;
+          p_health?: DogHealthStatus[] | null;
+          p_has_emergency?: boolean | null;
+          p_puppies?: boolean | null;
           p_limit?: number;
           p_offset?: number;
-        } & DogSearchFilters;
+        };
         Returns: DogSearchRow[];
       };
       dogs_in_bbox: {
@@ -547,8 +582,14 @@ export type Database = {
           p_min_lat: number;
           p_max_lng: number;
           p_max_lat: number;
+          p_feeding_status?: string | null;
+          p_vaccinated?: TriState | null;
+          p_sterilized?: TriState | null;
+          p_health?: DogHealthStatus[] | null;
+          p_has_emergency?: boolean | null;
+          p_puppies?: boolean | null;
           p_limit?: number;
-        } & DogSearchFilters;
+        };
         Returns: DogSearchRow[];
       };
       nearby_duplicate_check: {
@@ -592,7 +633,7 @@ export type Database = {
         Returns: { user_id: string; expo_push_token: string }[];
       };
       mark_all_notifications_read: {
-        Args: Record<string, never>;
+        Args: Record<PropertyKey, never>;
         Returns: undefined;
       };
       admin_soft_delete_dog: {
@@ -600,7 +641,7 @@ export type Database = {
         Returns: undefined;
       };
       is_moderator: {
-        Args: Record<string, never>;
+        Args: Record<PropertyKey, never>;
         Returns: boolean;
       };
     };
@@ -624,7 +665,7 @@ export type Database = {
       location_source: LocationSource;
       device_platform: DevicePlatform;
     };
-    CompositeTypes: Record<string, never>;
+    CompositeTypes: { [_ in never]: never };
   };
 };
 
