@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import { useColorScheme, type ColorValue } from 'react-native';
 
 import { palette } from '@/constants/palette';
+import { useUnreadCount } from '@/features/notifications/hooks';
 
 type IoniconName = keyof typeof Ionicons.glyphMap;
 
@@ -14,6 +15,7 @@ function tabIcon(focusedName: IoniconName, name: IoniconName) {
 
 export default function TabsLayout() {
   const colorScheme = useColorScheme();
+  const { data: unreadCount } = useUnreadCount();
 
   return (
     <Tabs
@@ -36,7 +38,11 @@ export default function TabsLayout() {
       />
       <Tabs.Screen
         name="alerts"
-        options={{ title: 'Alerts', tabBarIcon: tabIcon('notifications', 'notifications-outline') }}
+        options={{
+          title: 'Alerts',
+          tabBarIcon: tabIcon('notifications', 'notifications-outline'),
+          tabBarBadge: unreadCount && unreadCount > 0 ? unreadCount : undefined,
+        }}
       />
       <Tabs.Screen
         name="profile"

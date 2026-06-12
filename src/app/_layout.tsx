@@ -7,6 +7,8 @@ import { useEffect } from 'react';
 import { useColorScheme } from 'react-native';
 
 import { darkNavTheme, lightNavTheme } from '@/constants/navTheme';
+import { useAuth } from '@/hooks/useAuth';
+import { registerForPushNotifications, useNotificationDeepLinks } from '@/lib/pushNotifications';
 import { queryClient } from '@/lib/queryClient';
 import { supabase } from '@/lib/supabase';
 import { useAuthStore } from '@/stores/authStore';
@@ -30,6 +32,19 @@ function useAuthBootstrap() {
   }, []);
 }
 
+function PushNotificationsGate() {
+  const { userId } = useAuth();
+  useNotificationDeepLinks();
+
+  useEffect(() => {
+    if (userId) {
+      void registerForPushNotifications(userId);
+    }
+  }, [userId]);
+
+  return null;
+}
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
   useAuthBootstrap();
@@ -38,6 +53,7 @@ export default function RootLayout() {
     <QueryClientProvider client={queryClient}>
       <ThemeProvider value={colorScheme === 'dark' ? darkNavTheme : lightNavTheme}>
         <StatusBar style="auto" />
+        <PushNotificationsGate />
         <Stack>
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false, presentation: 'modal' }} />
