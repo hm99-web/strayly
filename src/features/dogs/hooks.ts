@@ -1,5 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
+import { regionToBbox, type MapRegion } from '@/components/map/DogMap.types';
 import { keys } from '@/constants/queryKeys';
 import type { DogFilters } from '@/stores/mapStore';
 import type { LatLng } from '@/types/domain';
@@ -11,6 +12,7 @@ import {
   fetchDog,
   fetchDogPhotos,
   searchDogsByRadius,
+  searchDogsInBbox,
   updateDog,
   type CreateDogInput,
 } from './api';
@@ -31,6 +33,21 @@ export function useDogsInRadius(params: {
     queryFn: () => searchDogsByRadius(params),
     placeholderData: keepPreviousData,
     enabled: params.enabled !== false,
+  });
+}
+
+/** Viewport query for the map. Bbox snapped to 3 decimals for cache reuse. */
+export function useDogsInBbox(region: MapRegion | null, filters: DogFilters) {
+  const bbox = region ? regionToBbox(region) : null;
+  const tileKey = bbox
+    ? [bbox.minLng, bbox.minLat, bbox.maxLng, bbox.maxLat].map((v) => v.toFixed(3)).join(',')
+    : 'none';
+  return useQuery({
+    queryKey: keys.dogs.bbox(tileKey, filters),
+    queryFn: () => searchDogsInBbox({ ...bbox!, filters }),
+    enabled: bbox != null,
+    placeholderData: keepPreviousData,
+    staleTime: 30_000,
   });
 }
 

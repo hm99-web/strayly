@@ -66,6 +66,10 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       ? ([['@react-native-google-signin/google-signin', { iosUrlScheme: GOOGLE_IOS_URL_SCHEME }]] as [string, unknown][])
       : []),
   ],
+  extra: {
+    // Lets DogMap.tsx choose Apple Maps on iOS until a Google key is configured.
+    hasGoogleMapsIosKey: GOOGLE_MAPS_IOS_KEY.length > 0,
+  },
   experiments: {
     typedRoutes: true,
   },
