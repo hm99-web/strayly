@@ -42,6 +42,11 @@ export default function RootLayout() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="(auth)" options={{ headerShown: false, presentation: 'modal' }} />
           <Stack.Screen name="dog/new" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="dog/[id]/feed" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="dog/[id]/medical" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="dog/[id]/vaccinate" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="dog/[id]/report" options={{ presentation: 'modal' }} />
+          <Stack.Screen name="dog/[id]/edit" options={{ presentation: 'modal' }} />
         </Stack>
       </ThemeProvider>
     </QueryClientProvider>

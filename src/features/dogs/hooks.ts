@@ -1,4 +1,10 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  keepPreviousData,
+  useInfiniteQuery,
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from '@tanstack/react-query';
 
 import { regionToBbox, type MapRegion } from '@/components/map/DogMap.types';
 import { keys } from '@/constants/queryKeys';
@@ -11,11 +17,24 @@ import {
   createDog,
   fetchDog,
   fetchDogPhotos,
+  fetchDogTimeline,
   searchDogsByRadius,
   searchDogsInBbox,
+  TIMELINE_PAGE_SIZE,
   updateDog,
   type CreateDogInput,
 } from './api';
+
+/** Keyset-paginated merged timeline (activity_logs via get_dog_timeline). */
+export function useDogTimeline(dogId: string) {
+  return useInfiniteQuery({
+    queryKey: keys.dogs.timeline(dogId),
+    queryFn: ({ pageParam }) => fetchDogTimeline(dogId, pageParam),
+    initialPageParam: null as number | null,
+    getNextPageParam: (lastPage) =>
+      lastPage.length === TIMELINE_PAGE_SIZE ? lastPage[lastPage.length - 1].id : undefined,
+  });
+}
 
 export function useDogsInRadius(params: {
   center: LatLng;

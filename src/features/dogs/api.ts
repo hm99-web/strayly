@@ -130,6 +130,18 @@ export async function updateDog(
   if (error) throw error;
 }
 
+export const TIMELINE_PAGE_SIZE = 25;
+
+export async function fetchDogTimeline(dogId: string, beforeId: number | null) {
+  const { data, error } = await supabase.rpc('get_dog_timeline', {
+    p_dog_id: dogId,
+    p_before_id: beforeId,
+    p_limit: TIMELINE_PAGE_SIZE,
+  });
+  if (error) throw error;
+  return data;
+}
+
 /** Standalone "I saw this dog here" sighting. */
 export async function reportSighting(dogId: string, point: LatLng, note?: string): Promise<void> {
   const { error } = await supabase.from('dog_locations').insert({
