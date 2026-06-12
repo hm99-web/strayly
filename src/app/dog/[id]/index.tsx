@@ -12,6 +12,7 @@ import { Screen } from '@/components/ui/Screen';
 import { keys } from '@/constants/queryKeys';
 import { reportSighting } from '@/features/dogs/api';
 import { useAddDogPhoto, useDog, useDogPhotos, useDogTimeline } from '@/features/dogs/hooks';
+import { useMyFollows, useToggleFollow } from '@/features/follows/hooks';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { formatAge, timeAgo } from '@/lib/format';
 import { pickImages } from '@/lib/images';
@@ -68,6 +69,9 @@ export default function DogDetailScreen() {
   const { data: photos } = useDogPhotos(id);
   const timeline = useDogTimeline(id);
   const addPhoto = useAddDogPhoto(id);
+  const { data: follows } = useMyFollows();
+  const toggleFollow = useToggleFollow(id);
+  const isFollowing = follows?.has(id) ?? false;
   const [sightingState, setSightingState] = useState<'idle' | 'saving' | 'done' | 'failed'>('idle');
 
   if (isLoading || error || !dog) {
@@ -113,6 +117,19 @@ export default function DogDetailScreen() {
     <View className="gap-5 pb-5">
       <View>
         <PhotoCarousel photos={photos ?? []} />
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={isFollowing ? `Unfollow ${dog.name}` : `Follow ${dog.name}`}
+          accessibilityState={{ selected: isFollowing }}
+          onPress={() => requireAuth(() => toggleFollow.mutate(!isFollowing))}
+          className="absolute right-3 top-3 h-10 w-10 items-center justify-center rounded-full bg-black/50"
+        >
+          <Ionicons
+            name={isFollowing ? 'heart' : 'heart-outline'}
+            size={20}
+            color={isFollowing ? '#F87171' : 'white'}
+          />
+        </Pressable>
         <Pressable
           accessibilityRole="button"
           accessibilityLabel="Add a photo"

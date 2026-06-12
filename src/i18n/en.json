@@ -1,0 +1,21 @@
+{
+  "app.name": "Paw Guardians",
+  "tabs.map": "Map",
+  "tabs.dogs": "Dogs",
+  "tabs.add": "Add Dog",
+  "tabs.alerts": "Alerts",
+  "tabs.profile": "Profile",
+  "feeding.fedRecently": "Fed recently",
+  "feeding.due": "Feeding due",
+  "feeding.needsFood": "Needs food",
+  "feeding.never": "Never fed",
+  "actions.feed": "Feed",
+  "actions.medical": "Medical",
+  "actions.vaccine": "Vaccine",
+  "actions.emergency": "Emergency",
+  "actions.edit": "Edit",
+  "actions.follow": "Follow",
+  "auth.signIn": "Sign in",
+  "auth.signUp": "Create account",
+  "auth.guest": "Continue as guest"
+}

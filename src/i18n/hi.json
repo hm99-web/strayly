@@ -1,0 +1,21 @@
+{
+  "app.name": "पॉ गार्डियंस",
+  "tabs.map": "नक्शा",
+  "tabs.dogs": "कुत्ते",
+  "tabs.add": "कुत्ता जोड़ें",
+  "tabs.alerts": "सूचनाएँ",
+  "tabs.profile": "प्रोफ़ाइल",
+  "feeding.fedRecently": "हाल में खिलाया गया",
+  "feeding.due": "खिलाने का समय",
+  "feeding.needsFood": "खाने की ज़रूरत",
+  "feeding.never": "कभी नहीं खिलाया",
+  "actions.feed": "खिलाएँ",
+  "actions.medical": "इलाज",
+  "actions.vaccine": "टीका",
+  "actions.emergency": "आपातकाल",
+  "actions.edit": "बदलें",
+  "actions.follow": "फ़ॉलो करें",
+  "auth.signIn": "साइन इन करें",
+  "auth.signUp": "खाता बनाएँ",
+  "auth.guest": "अतिथि के रूप में जारी रखें"
+}

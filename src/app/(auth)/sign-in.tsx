@@ -4,9 +4,12 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { KeyboardAvoidingView, Platform, ScrollView, Text, View } from 'react-native';
 
+import { Ionicons } from '@expo/vector-icons';
+
 import { FormInput } from '@/components/forms/FormInput';
 import { Button } from '@/components/ui/Button';
 import { signInAnonymously, signInWithEmail } from '@/features/auth/api';
+import { googleSignInAvailable, signInWithGoogle } from '@/features/auth/googleAuth';
 import { signInSchema, type SignInValues } from '@/features/auth/schemas';
 
 export default function SignInScreen() {
@@ -14,6 +17,7 @@ export default function SignInScreen() {
   const { returnTo } = useLocalSearchParams<{ returnTo?: string }>();
   const [error, setError] = useState<string | null>(null);
   const [guestLoading, setGuestLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
 
   const {
     control,
@@ -99,6 +103,29 @@ export default function SignInScreen() {
         <Button onPress={onSubmit} loading={isSubmitting}>
           Sign in
         </Button>
+        {googleSignInAvailable() ? (
+          <Button
+            variant="outline"
+            loading={googleLoading}
+            onPress={async () => {
+              setError(null);
+              setGoogleLoading(true);
+              try {
+                const signedIn = await signInWithGoogle();
+                if (signedIn) finish();
+              } catch (e) {
+                setError(e instanceof Error ? e.message : 'Google sign-in failed');
+              } finally {
+                setGoogleLoading(false);
+              }
+            }}
+          >
+            <Ionicons name="logo-google" size={18} color="#EA580C" />
+            <Text className="text-base font-semibold text-stone-900 dark:text-stone-100">
+              Continue with Google
+            </Text>
+          </Button>
+        ) : null}
         <Button variant="outline" onPress={onGuest} loading={guestLoading}>
           Continue as guest
         </Button>
