@@ -9,12 +9,12 @@ type BboxArgs = Database['public']['Functions']['dogs_in_bbox']['Args'];
 
 function filterArgs(filters: DogFilters) {
   return {
-    p_feeding_status: filters.feedingStatus ?? null,
-    p_vaccinated: filters.vaccinated ?? null,
-    p_sterilized: filters.sterilized ?? null,
-    p_health: filters.health.length > 0 ? filters.health : null,
-    p_has_emergency: filters.emergencyOnly ? true : null,
-    p_puppies: filters.puppies ? true : null,
+    p_feeding_status: filters.feedingStatus ?? undefined,
+    p_vaccinated: filters.vaccinated ?? undefined,
+    p_sterilized: filters.sterilized ?? undefined,
+    p_health: filters.health.length > 0 ? filters.health : undefined,
+    p_has_emergency: filters.emergencyOnly ? true : undefined,
+    p_puppies: filters.puppies ? true : undefined,
   };
 }
 
@@ -78,7 +78,7 @@ export async function checkDuplicates(point: LatLng, gender?: string): Promise<D
   const { data, error } = await supabase.rpc('nearby_duplicate_check', {
     p_lat: point.latitude,
     p_lng: point.longitude,
-    p_gender: (gender as DuplicateMatch['gender']) ?? null,
+    p_gender: (gender as DuplicateMatch['gender']) ?? undefined,
   });
   if (error) throw error;
   return data;
@@ -135,7 +135,7 @@ export const TIMELINE_PAGE_SIZE = 25;
 export async function fetchDogTimeline(dogId: string, beforeId: number | null) {
   const { data, error } = await supabase.rpc('get_dog_timeline', {
     p_dog_id: dogId,
-    p_before_id: beforeId,
+    p_before_id: beforeId ?? undefined,
     p_limit: TIMELINE_PAGE_SIZE,
   });
   if (error) throw error;

@@ -24,14 +24,16 @@ setup; this file covers conventions that aren't obvious from the code.
   trigger-owned — never write them from the client; column grants will reject it anyway.
 - Keyset pagination only (no offset beyond the capped radius RPC, no count(*) on
   activity_logs/feeding_records).
-- New tables: enable RLS + policies in the same migration; SECURITY DEFINER functions must
-  `set search_path = public, extensions`.
+- New tables: enable RLS + policies AND explicit grants in the same migration — this stack
+  ships hardened defaults (no select/insert/etc. for anon/authenticated, no fn EXECUTE), see
+  migration 0012. SECURITY DEFINER functions must `set search_path = public, extensions`.
 - `supabase/functions/` is Deno — excluded from tsconfig/eslint; don't import app code into it.
 
 ## State of the build
 
-- src/types/database.ts is hand-written pending first `npm run db:types` run (needs Docker);
-  regenerate and reconcile when available.
+- src/types/database.ts is generated from the live local DB via `npm run db:types`
+  (scripts/gen-db-types.sh — postgres-meta sidecar; the CLI's own gen-types demands a
+  platform login). Regenerate after every migration change.
 - Push needs `npx eas init` (projectId) + FCM/APNs credentials before tokens register.
 - iOS uses Apple Maps until GOOGLE_MAPS_IOS_KEY is set (see app.config.ts extra flag).
 - Community features (comments/upvotes/trust/reports) have schema + RLS but stub UI.
