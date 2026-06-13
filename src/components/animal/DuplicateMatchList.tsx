@@ -8,10 +8,10 @@ import type { DuplicateMatch } from '@/types/domain';
 
 interface DuplicateMatchListProps {
   matches: DuplicateMatch[];
-  onSelectExisting: (dogId: string) => void;
+  onSelectExisting: (animalId: string) => void;
 }
 
-/** "This might be Sheru — 40 m away": shown before creating a new dog. */
+/** "This might be Sheru — 40 m away": shown before creating a new animal. */
 export function DuplicateMatchList({ matches, onSelectExisting }: DuplicateMatchListProps) {
   return (
     <View className="gap-2">
@@ -25,7 +25,7 @@ export function DuplicateMatchList({ matches, onSelectExisting }: DuplicateMatch
         >
           {match.primary_thumb_path ? (
             <Image
-              source={{ uri: publicUrl('dog-media', match.primary_thumb_path) }}
+              source={{ uri: publicUrl('animal-media', match.primary_thumb_path) }}
               style={{ width: 56, height: 56, borderRadius: 12 }}
               contentFit="cover"
               cachePolicy="disk"

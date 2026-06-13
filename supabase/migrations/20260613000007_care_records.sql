@@ -3,7 +3,7 @@
 -- ---------------------------------------------------------------------------
 create table public.feeding_records (
   id bigint generated always as identity primary key,
-  dog_id uuid not null references public.dogs (id) on delete cascade,
+  animal_id uuid not null references public.animals (id) on delete cascade,
   fed_by uuid not null default auth.uid() references public.profiles (id),
   food_type public.food_type not null,
   food_type_other text check (char_length(food_type_other) <= 100),
@@ -15,7 +15,7 @@ create table public.feeding_records (
   check (fed_at <= now() + interval '5 minutes')
 );
 
-create index feeding_records_dog_idx on public.feeding_records (dog_id, fed_at desc);
+create index feeding_records_animal_idx on public.feeding_records (animal_id, fed_at desc);
 create index feeding_records_user_idx on public.feeding_records (fed_by, fed_at desc);
 
 create or replace function public.trg_feeding_after_insert()
@@ -25,23 +25,23 @@ security definer
 set search_path = public, extensions
 as $$
 begin
-  update public.dogs
+  update public.animals
   set last_fed_at = greatest(coalesce(last_fed_at, '-infinity'::timestamptz), new.fed_at),
       last_fed_by = new.fed_by,
       feedings_count = feedings_count + 1
-  where id = new.dog_id;
+  where id = new.animal_id;
 
   update public.profiles
   set feedings_count = feedings_count + 1
   where id = new.fed_by;
 
   if new.location is not null then
-    insert into public.dog_locations (dog_id, location, source, recorded_by)
-    values (new.dog_id, new.location, 'feeding', new.fed_by);
+    insert into public.animal_locations (animal_id, location, source, recorded_by)
+    values (new.animal_id, new.location, 'feeding', new.fed_by);
   end if;
 
   perform public.fn_log_activity(
-    new.dog_id, new.fed_by, 'fed', 'feeding_records', new.id::text,
+    new.animal_id, new.fed_by, 'fed', 'feeding_records', new.id::text,
     'Fed (' || replace(new.food_type::text, '_', ' ') || ')',
     jsonb_build_object(
       'food_type', new.food_type,
@@ -65,7 +65,7 @@ create trigger trg_feeding_after_insert
 -- ---------------------------------------------------------------------------
 create table public.vaccination_records (
   id uuid primary key default gen_random_uuid(),
-  dog_id uuid not null references public.dogs (id) on delete cascade,
+  animal_id uuid not null references public.animals (id) on delete cascade,
   vaccine_type public.vaccine_type not null,
   vaccine_name text check (char_length(vaccine_name) <= 120),
   administered_at date not null,
@@ -78,7 +78,7 @@ create table public.vaccination_records (
   created_at timestamptz not null default now()
 );
 
-create index vaccination_records_dog_idx on public.vaccination_records (dog_id, administered_at desc);
+create index vaccination_records_animal_idx on public.vaccination_records (animal_id, administered_at desc);
 -- Powers the post-MVP "vaccination due" reminder cron:
 create index vaccination_records_due_idx on public.vaccination_records (next_due_at)
   where next_due_at is not null;
@@ -90,10 +90,10 @@ security definer
 set search_path = public, extensions
 as $$
 begin
-  update public.dogs set vaccination_status = 'yes' where id = new.dog_id;
+  update public.animals set vaccination_status = 'yes' where id = new.animal_id;
 
   perform public.fn_log_activity(
-    new.dog_id, new.recorded_by, 'vaccination', 'vaccination_records', new.id::text,
+    new.animal_id, new.recorded_by, 'vaccination', 'vaccination_records', new.id::text,
     initcap(new.vaccine_type::text) || ' vaccination recorded',
     jsonb_build_object(
       'vaccine_type', new.vaccine_type,
@@ -117,11 +117,11 @@ create trigger trg_vaccination_after_insert
 -- ---------------------------------------------------------------------------
 create table public.medical_records (
   id uuid primary key default gen_random_uuid(),
-  dog_id uuid not null references public.dogs (id) on delete cascade,
+  animal_id uuid not null references public.animals (id) on delete cascade,
   record_type public.medical_record_type not null,
   title text not null check (char_length(title) between 1 and 150),
   description text check (char_length(description) <= 2000),
-  observed_health_status public.dog_health_status,
+  observed_health_status public.animal_health_status,
   severity public.severity_level,
   photo_paths text[] not null default '{}',
   treated_by_text text check (char_length(treated_by_text) <= 200),
@@ -131,7 +131,7 @@ create table public.medical_records (
   created_at timestamptz not null default now()
 );
 
-create index medical_records_dog_idx on public.medical_records (dog_id, performed_at desc);
+create index medical_records_animal_idx on public.medical_records (animal_id, performed_at desc);
 
 create or replace function public.trg_medical_after_insert()
 returns trigger
@@ -141,18 +141,18 @@ set search_path = public, extensions
 as $$
 begin
   if new.observed_health_status is not null then
-    update public.dogs set health_status = new.observed_health_status where id = new.dog_id;
+    update public.animals set health_status = new.observed_health_status where id = new.animal_id;
   end if;
 
   if new.record_type = 'sterilization' then
-    update public.dogs
+    update public.animals
     set sterilization_status = 'yes',
         sterilized_at = new.performed_at::date
-    where id = new.dog_id;
+    where id = new.animal_id;
   end if;
 
   perform public.fn_log_activity(
-    new.dog_id, new.recorded_by,
+    new.animal_id, new.recorded_by,
     case when new.record_type = 'sterilization' then 'sterilization'::public.activity_type
          else 'medical'::public.activity_type end,
     'medical_records', new.id::text,

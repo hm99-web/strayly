@@ -1,8 +1,8 @@
-# 🐾 Paw Guardians (Street Dog Tracker)
+# 🐾 Strayly
 
-A community platform to locate, track, feed, vaccinate and care for street dogs through a shared
-map — built for India-scale usage on slow mobile networks. One codebase for **iOS, Android and
-Web**.
+A community platform to locate, track, feed, vaccinate and care for stray dogs **and cats**
+through a shared map — built for India-scale usage on slow mobile networks. One codebase for
+**iOS, Android and Web**.
 
 | Layer | Tech |
 | --- | --- |
@@ -26,7 +26,7 @@ npx supabase status         # shows URL + anon key
 # 2. Configure env
 cp .env.example .env        # paste the URL + anon key from `supabase status`
 
-# 3. Create schema + demo data (25 Bengaluru dogs, 3 users)
+# 3. Create schema + demo data (25 dogs + 8 cats in Bengaluru, 3 users)
 npm run db:reset            # applies supabase/migrations + seed.sql
 npm run db:types            # regenerates src/types/database.ts
 
@@ -52,7 +52,7 @@ read by [app.config.ts](app.config.ts) during prebuild and baked into native bin
 
 1. **Maps (Google Cloud, personal account)** — enable *Maps SDK for Android*, *Maps SDK for iOS*,
    *Maps JavaScript API*, *Places API (New)*. Create one key per platform and restrict them.
-   Android keys are bound to package `com.hm99.pawguardians` + SHA-1 — register **both** your
+   Android keys are bound to package `com.hm99.strayly` + SHA-1 — register **both** your
    debug keystore and the EAS keystore SHA-1 or release maps render blank. Until the iOS key is
    set, the app silently falls back to Apple Maps on iOS.
 2. **EAS + push** — `npx eas init` (writes the projectId used for Expo push tokens). Android:
@@ -78,29 +78,29 @@ disable fan-out — writes never fail because of it.
 ## Project layout
 
 ```
-src/app/            Expo Router routes: (tabs) Map|Dogs|Add|Alerts|Profile,
-                    (auth) sign-in/sign-up/upgrade, dog/new, dog/[id]/(feed|medical|
+src/app/            Expo Router routes: (tabs) Map|Strays|Add|Alerts|Profile,
+                    (auth) sign-in/sign-up/upgrade, animal/new, animal/[id]/(feed|medical|
                     vaccinate|report|edit), emergency/[id], settings/, admin/ (role-gated)
-src/components/     ui/ (Button, Input, Screen…), map/ (DogMap platform split + clustering),
-                    dog/ (DogCard, badges, timeline, filter sheet), forms/
-src/features/       <feature>/{api,hooks,schemas}.ts — auth, dogs, feeding, medical,
+src/components/     ui/ (Button, Input, Screen…), map/ (AnimalMap platform split + clustering),
+                    animal/ (AnimalCard, badges, timeline, filter sheet), forms/
+src/features/       <feature>/{api,hooks,schemas}.ts — auth, animals, feeding, medical,
                     emergencies, notifications, follows, profile
 src/lib/            supabase client, queryClient, images (compress+upload), location,
-                    places, pushNotifications, dogStatus (single color/badge source)
+                    places, pushNotifications, animalStatus (single color/badge source)
 src/stores/         zustand: authStore, mapStore (shared search center + filters)
-supabase/           config.toml, migrations/ (11 ordered files), seed.sql,
+supabase/           config.toml, migrations/ (12 ordered files), seed.sql,
                     functions/push-fanout/
 ```
 
 ### Architecture rules
 
-- **Status colors/badges have ONE source**: [src/lib/dogStatus.ts](src/lib/dogStatus.ts) +
+- **Status colors/badges have ONE source**: [src/lib/animalStatus.ts](src/lib/animalStatus.ts) +
   [src/constants/palette.js](src/constants/palette.js) (shared with Tailwind). Feeding
   thresholds (<24h green, 24–72h yellow, else red) are mirrored only in
   `fn_feeding_status()` ([migration 10](supabase/migrations/20260613000010_rpcs.sql)).
 - **Map SDKs never leak** outside `src/components/map/` (ESLint-enforced). Everything renders
-  through the `<DogMap>` contract in DogMap.types.ts.
-- **Denormalized columns on `dogs`** (last_fed_at, health, counters, location) are written only
+  through the `<AnimalMap>` contract in AnimalMap.types.ts.
+- **Denormalized columns on `animals`** (last_fed_at, health, counters, location) are written only
   by SECURITY DEFINER triggers; clients have column-level grants for community-editable fields.
 - **Keyset pagination everywhere** (activity id cursors); no `count(*)` on big tables.
 - **Anonymous users can contribute** (add/feed/report — low friction); commenting and upvotes
@@ -108,15 +108,16 @@ supabase/           config.toml, migrations/ (11 ordered files), seed.sql,
 
 ## Database
 
-11 migrations create: profiles + user_settings (private, GIST-indexed last_known_location for
-push fan-out) · dogs (hot table, PostGIS geography + denorms) · dog_photos · dog_locations
-(append-only) · feeding/vaccination/medical records · emergency_reports · activity_logs (single
-timeline source, trigger-written) · notifications (Realtime) · push_tokens · dog_follows ·
-community stubs (comments, upvotes, trust_events, content_reports) · storage buckets + policies.
+12 migrations create: profiles + user_settings (private, GIST-indexed last_known_location for
+push fan-out) · animals (hot table: species dog|cat, PostGIS geography + denorms) ·
+animal_photos · animal_locations (append-only) · feeding/vaccination/medical records ·
+emergency_reports · activity_logs (single timeline source, trigger-written) · notifications
+(Realtime) · push_tokens · animal_follows · community stubs (comments, upvotes, trust_events,
+content_reports) · storage buckets + policies · explicit grants.
 
-Key RPCs: `dogs_within_radius`, `dogs_in_bbox`, `nearby_duplicate_check`, `get_dog_timeline`,
+Key RPCs: `animals_within_radius`, `animals_in_bbox` (both species-filterable), `nearby_duplicate_check`, `get_animal_timeline`,
 `users_to_notify` / `followers_to_notify` (service-role only), `mark_all_notifications_read`,
-`admin_soft_delete_dog`.
+`admin_soft_delete_animal`.
 
 ## Deploying
 
@@ -135,16 +136,16 @@ npx expo export --platform web   # deploy dist/ to Vercel/Netlify/EAS Hosting
 
 ## Roadmap
 
-**Shipped (MVP)** — auth (email/Google/anonymous + upgrade), dog profiles + photos, GPS duplicate
-detection, map with clustering + 9 filters, address search, feeding with staleness colors +
+**Shipped (MVP)** — auth (email/Google/anonymous + upgrade), dog & cat profiles + photos, GPS duplicate
+detection (species-aware), map with clustering + 10 filters, address search, feeding with staleness colors +
 optimistic updates, medical/vaccination/sterilization records, merged activity timeline,
-emergency reports with community lifecycle, nearby + followed-dog push, live Alerts inbox,
+emergency reports with community lifecycle, nearby + followed-animal push, live Alerts inbox,
 follows, notification prefs, role-gated admin shell, dark mode, EN/HI i18n foundation.
 
 **Next (schema already shipped)** — comments + upvotes UI · report-inaccurate flow ·
 trust-score events + verified badges · vaccination-due reminders (pg_cron over
 `vaccination_records.next_due_at`) · admin: merge duplicates, moderate users, resolve
-content_reports · offline mutation queue · QR code per dog profile · CAPTCHA (Turnstile) for
+content_reports · offline mutation queue · QR code per animal profile · CAPTCHA (Turnstile) for
 anonymous spam control.
 
 **Later** — population heatmap (`ST_HexagonGrid`) · AI photo duplicate detection (embeddings) ·

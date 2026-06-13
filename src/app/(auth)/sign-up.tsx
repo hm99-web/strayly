@@ -72,7 +72,7 @@ export default function SignUpScreen() {
             Join Paw Guardians
           </Text>
           <Text className="text-center text-stone-500 dark:text-stone-400">
-            Help your neighbourhood look after its dogs.
+            Help your neighbourhood look after its strays.
           </Text>
         </View>
 

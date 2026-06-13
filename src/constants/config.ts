@@ -1,4 +1,4 @@
-export const APP_NAME = 'Paw Guardians';
+export const APP_NAME = 'Strayly';
 
 /** Fallback map center when location permission is denied: Bengaluru. */
 export const DEFAULT_CENTER = { latitude: 12.9716, longitude: 77.5946 };

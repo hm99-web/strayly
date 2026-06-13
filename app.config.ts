@@ -9,21 +9,21 @@ const GOOGLE_IOS_URL_SCHEME = process.env.GOOGLE_IOS_URL_SCHEME;
 
 export default ({ config }: ConfigContext): ExpoConfig => ({
   ...config,
-  name: 'Paw Guardians',
-  slug: 'pawguardians',
+  name: 'Strayly',
+  slug: 'strayly',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/images/icon.png',
-  scheme: 'pawguardians',
+  scheme: 'strayly',
   userInterfaceStyle: 'automatic',
   ios: {
-    bundleIdentifier: 'com.hm99.pawguardians',
+    bundleIdentifier: 'com.hm99.strayly',
     supportsTablet: false,
     icon: './assets/expo.icon',
     config: { googleMapsApiKey: GOOGLE_MAPS_IOS_KEY },
   },
   android: {
-    package: 'com.hm99.pawguardians',
+    package: 'com.hm99.strayly',
     adaptiveIcon: {
       backgroundColor: '#7C2D12',
       foregroundImage: './assets/images/android-icon-foreground.png',
@@ -50,14 +50,14 @@ export default ({ config }: ConfigContext): ExpoConfig => ({
       'expo-location',
       {
         locationWhenInUsePermission:
-          'Paw Guardians uses your location to show street dogs near you and to record where dogs were seen.',
+          'Strayly uses your location to show street dogs near you and to record where dogs were seen.',
       },
     ],
     [
       'expo-image-picker',
       {
-        photosPermission: 'Paw Guardians lets you attach photos of dogs, feedings and medical updates.',
-        cameraPermission: 'Paw Guardians lets you photograph dogs to add or update their profiles.',
+        photosPermission: 'Strayly lets you attach photos of dogs, feedings and medical updates.',
+        cameraPermission: 'Strayly lets you photograph dogs to add or update their profiles.',
       },
     ],
     'expo-notifications',

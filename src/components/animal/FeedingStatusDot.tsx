@@ -4,7 +4,7 @@ import {
   FEEDING_STATUS_COLOR,
   FEEDING_STATUS_LABEL,
   getFeedingStatus,
-} from '@/lib/dogStatus';
+} from '@/lib/animalStatus';
 import { timeAgo } from '@/lib/format';
 
 interface FeedingStatusDotProps {

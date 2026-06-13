@@ -8,7 +8,7 @@
 -- ---------------------------------------------------------------------------
 create table public.activity_logs (
   id bigint generated always as identity primary key,
-  dog_id uuid not null references public.dogs (id) on delete cascade,
+  animal_id uuid not null references public.animals (id) on delete cascade,
   actor_id uuid references public.profiles (id),
   activity_type public.activity_type not null,
   ref_table text,
@@ -18,7 +18,7 @@ create table public.activity_logs (
   created_at timestamptz not null default now()
 );
 
-create index activity_logs_dog_idx on public.activity_logs (dog_id, id desc);
+create index activity_logs_animal_idx on public.activity_logs (animal_id, id desc);
 create index activity_logs_actor_idx on public.activity_logs (actor_id, id desc);
 create index activity_logs_created_brin on public.activity_logs using brin (created_at);
 
@@ -64,7 +64,7 @@ create index push_tokens_user_idx on public.push_tokens (user_id) where revoked_
 -- Helpers shared by all event triggers.
 -- ---------------------------------------------------------------------------
 create or replace function public.fn_log_activity(
-  p_dog_id uuid,
+  p_animal_id uuid,
   p_actor_id uuid,
   p_type public.activity_type,
   p_ref_table text,
@@ -78,8 +78,8 @@ security definer
 set search_path = public, extensions
 as $$
 begin
-  insert into public.activity_logs (dog_id, actor_id, activity_type, ref_table, ref_id, summary, metadata)
-  values (p_dog_id, p_actor_id, p_type, p_ref_table, p_ref_id, p_summary, coalesce(p_metadata, '{}'));
+  insert into public.activity_logs (animal_id, actor_id, activity_type, ref_table, ref_id, summary, metadata)
+  values (p_animal_id, p_actor_id, p_type, p_ref_table, p_ref_id, p_summary, coalesce(p_metadata, '{}'));
 end;
 $$;
 
@@ -128,11 +128,11 @@ set search_path = public, extensions
 as $$
 begin
   if new.activity_type in ('fed', 'medical', 'vaccination', 'sterilization', 'emergency_created', 'status_changed')
-     and exists (select 1 from public.dogs d where d.id = new.dog_id and d.followers_count > 0)
+     and exists (select 1 from public.animals d where d.id = new.animal_id and d.followers_count > 0)
   then
     perform public.fn_notify_fanout(jsonb_build_object(
-      'type', 'followed_dog_update',
-      'dog_id', new.dog_id,
+      'type', 'followed_animal_update',
+      'animal_id', new.animal_id,
       'activity_id', new.id,
       'activity_type', new.activity_type,
       'actor_id', new.actor_id,

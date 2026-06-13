@@ -20,8 +20,8 @@ type IoniconName = keyof typeof Ionicons.glyphMap;
 
 const TYPE_ICON: Record<string, { icon: IoniconName; color: string }> = {
   emergency_nearby: { icon: 'alert-circle', color: palette.status.emergency },
-  new_dog_nearby: { icon: 'paw', color: palette.brand[600] },
-  followed_dog_update: { icon: 'heart', color: palette.badge.pregnant },
+  new_animal_nearby: { icon: 'paw', color: palette.brand[600] },
+  followed_animal_update: { icon: 'heart', color: palette.badge.pregnant },
   vaccination_due: { icon: 'shield-checkmark', color: palette.badge.vaccinated },
   system: { icon: 'information-circle', color: '#78716C' },
 };
@@ -83,7 +83,7 @@ export default function AlertsTab() {
         <View className="flex-1 items-center justify-center gap-4 px-6">
           <Ionicons name="notifications-outline" size={48} color="#A8A29E" />
           <Text className="text-center text-stone-500 dark:text-stone-400">
-            Sign in to get alerts about emergencies and dogs you follow.
+            Sign in to get alerts about emergencies and strays you follow.
           </Text>
           <Button onPress={() => router.push('/(auth)/sign-in')}>Sign in</Button>
         </View>
@@ -127,7 +127,7 @@ export default function AlertsTab() {
           <View className="items-center gap-2 py-16">
             <Ionicons name="notifications-off-outline" size={40} color="#A8A29E" />
             <Text className="text-center text-stone-500 dark:text-stone-400">
-              {notifications.isLoading ? 'Loading…' : 'Nothing yet — alerts about nearby dogs will appear here.'}
+              {notifications.isLoading ? 'Loading…' : 'Nothing yet — alerts about nearby strays will appear here.'}
             </Text>
           </View>
         }

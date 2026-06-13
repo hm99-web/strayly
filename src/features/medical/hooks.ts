@@ -11,37 +11,37 @@ import {
   type AddVaccinationInput,
 } from './api';
 
-export function useMedicalRecords(dogId: string) {
+export function useMedicalRecords(animalId: string) {
   return useQuery({
-    queryKey: keys.dogs.medical(dogId),
-    queryFn: () => fetchMedicalRecords(dogId),
+    queryKey: keys.animals.medical(animalId),
+    queryFn: () => fetchMedicalRecords(animalId),
   });
 }
 
-export function useVaccinations(dogId: string) {
+export function useVaccinations(animalId: string) {
   return useQuery({
-    queryKey: keys.dogs.vaccinations(dogId),
-    queryFn: () => fetchVaccinations(dogId),
+    queryKey: keys.animals.vaccinations(animalId),
+    queryFn: () => fetchVaccinations(animalId),
   });
 }
 
-export function useAddMedicalRecord(dogId: string) {
+export function useAddMedicalRecord(animalId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: Omit<AddMedicalRecordInput, 'dogId'>) =>
-      addMedicalRecord({ ...input, dogId }),
+    mutationFn: (input: Omit<AddMedicalRecordInput, 'animalId'>) =>
+      addMedicalRecord({ ...input, animalId }),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: keys.dogs.all });
+      void queryClient.invalidateQueries({ queryKey: keys.animals.all });
     },
   });
 }
 
-export function useAddVaccination(dogId: string) {
+export function useAddVaccination(animalId: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: Omit<AddVaccinationInput, 'dogId'>) => addVaccination({ ...input, dogId }),
+    mutationFn: (input: Omit<AddVaccinationInput, 'animalId'>) => addVaccination({ ...input, animalId }),
     onSettled: () => {
-      void queryClient.invalidateQueries({ queryKey: keys.dogs.all });
+      void queryClient.invalidateQueries({ queryKey: keys.animals.all });
     },
   });
 }

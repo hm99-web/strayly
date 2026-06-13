@@ -10,8 +10,8 @@ import type { TimelineItem as TimelineItemType } from '@/types/domain';
 type IoniconName = keyof typeof Ionicons.glyphMap;
 
 const TYPE_PRESENTATION: Record<string, { icon: IoniconName; color: string }> = {
-  dog_created: { icon: 'paw', color: palette.brand[600] },
-  dog_updated: { icon: 'create-outline', color: '#78716C' },
+  animal_created: { icon: 'paw', color: palette.brand[600] },
+  animal_updated: { icon: 'create-outline', color: '#78716C' },
   fed: { icon: 'restaurant', color: palette.status.fedRecently },
   medical: { icon: 'medkit', color: palette.status.injured },
   vaccination: { icon: 'shield-checkmark', color: palette.badge.vaccinated },
@@ -37,7 +37,7 @@ function metadataPhoto(item: TimelineItemType): string | null {
 }
 
 export function TimelineItem({ item, isLast }: { item: TimelineItemType; isLast: boolean }) {
-  const presentation = TYPE_PRESENTATION[item.activity_type] ?? TYPE_PRESENTATION.dog_updated;
+  const presentation = TYPE_PRESENTATION[item.activity_type] ?? TYPE_PRESENTATION.animal_updated;
   const photo = metadataPhoto(item);
 
   return (
@@ -61,7 +61,7 @@ export function TimelineItem({ item, isLast }: { item: TimelineItemType; isLast:
         </Text>
         {photo ? (
           <Image
-            source={{ uri: publicUrl('dog-media', photo) }}
+            source={{ uri: publicUrl('animal-media', photo) }}
             style={{ width: 120, height: 90, borderRadius: 10, marginTop: 4 }}
             contentFit="cover"
             cachePolicy="disk"

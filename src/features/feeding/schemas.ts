@@ -1,7 +1,7 @@
 import { z } from 'zod';
 
 export const foodTypeValues = [
-  'dog_food',
+  'pet_food',
   'rice',
   'meat',
   'biscuits',

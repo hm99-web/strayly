@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { Modal, Pressable, ScrollView, Switch, Text, View } from 'react-native';
 
 import { Button } from '@/components/ui/Button';
-import { EMPTY_FILTERS, useMapStore, type DogFilters } from '@/stores/mapStore';
-import type { DogHealthStatus } from '@/types/domain';
+import { EMPTY_FILTERS, useMapStore, type AnimalFilters } from '@/stores/mapStore';
+import type { AnimalHealthStatus } from '@/types/domain';
 
 interface FilterSheetProps {
   visible: boolean;
@@ -44,11 +44,11 @@ function SectionLabel({ children }: { children: string }) {
   );
 }
 
-/** Shared between Map and Dogs tabs; writes the filters into mapStore. */
+/** Shared between Map and Strays tabs; writes the filters into mapStore. */
 export function FilterSheet({ visible, onClose }: FilterSheetProps) {
   const filters = useMapStore((s) => s.filters);
   const setFilters = useMapStore((s) => s.setFilters);
-  const [draft, setDraft] = useState<DogFilters>(filters);
+  const [draft, setDraft] = useState<AnimalFilters>(filters);
 
   // Re-sync the draft each time the sheet opens.
   const [wasVisible, setWasVisible] = useState(visible);
@@ -57,7 +57,7 @@ export function FilterSheet({ visible, onClose }: FilterSheetProps) {
     if (visible) setDraft(filters);
   }
 
-  function toggleHealth(status: DogHealthStatus) {
+  function toggleHealth(status: AnimalHealthStatus) {
     setDraft((d) => ({
       ...d,
       health: d.health.includes(status)
@@ -78,6 +78,22 @@ export function FilterSheet({ visible, onClose }: FilterSheetProps) {
           </View>
 
           <ScrollView contentContainerClassName="gap-4 p-5">
+            <View className="gap-2">
+              <SectionLabel>Species</SectionLabel>
+              <View className="flex-row flex-wrap gap-2">
+                <Chip
+                  label="Dogs"
+                  selected={draft.species === 'dog'}
+                  onPress={() => setDraft((d) => ({ ...d, species: d.species === 'dog' ? undefined : 'dog' }))}
+                />
+                <Chip
+                  label="Cats"
+                  selected={draft.species === 'cat'}
+                  onPress={() => setDraft((d) => ({ ...d, species: d.species === 'cat' ? undefined : 'cat' }))}
+                />
+              </View>
+            </View>
+
             <View className="gap-2">
               <SectionLabel>Feeding</SectionLabel>
               <View className="flex-row flex-wrap gap-2">
@@ -156,7 +172,7 @@ export function FilterSheet({ visible, onClose }: FilterSheetProps) {
             </View>
 
             <View className="flex-row items-center justify-between rounded-xl bg-white px-4 py-3 dark:bg-stone-900">
-              <Text className="font-medium text-stone-700 dark:text-stone-300">Puppies present</Text>
+              <Text className="font-medium text-stone-700 dark:text-stone-300">Puppies / kittens</Text>
               <Switch
                 value={draft.puppies === true}
                 onValueChange={(value) => setDraft((d) => ({ ...d, puppies: value ? true : undefined }))}

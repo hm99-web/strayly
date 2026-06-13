@@ -33,7 +33,7 @@ export default function ReportEmergencyScreen() {
     setError(null);
     try {
       const emergencyId = await createEmergency.mutateAsync({
-        dogId: id,
+        animalId: id,
         emergencyType: values.emergencyType,
         severity: values.severity,
         description: values.description,
@@ -56,7 +56,7 @@ export default function ReportEmergencyScreen() {
           <View className="rounded-xl border border-status-emergency/40 bg-red-50 p-3 dark:bg-red-950/30">
             <Text className="text-sm text-stone-700 dark:text-stone-300">
               Nearby volunteers will be alerted. Your current location is attached to the report so
-              rescuers can find the dog.
+              rescuers can find the animal.
             </Text>
           </View>
 
@@ -88,7 +88,7 @@ export default function ReportEmergencyScreen() {
             control={control}
             name="description"
             label="Describe the situation"
-            placeholder="What you saw, the dog's condition, exact spot…"
+            placeholder="What you saw, the animal's condition, exact spot…"
             multiline
             numberOfLines={4}
           />

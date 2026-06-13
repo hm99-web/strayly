@@ -3,38 +3,38 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { keys } from '@/constants/queryKeys';
 import { useAuth } from '@/hooks/useAuth';
 
-import { fetchMyFollowedDogIds, followDog, unfollowDog } from './api';
+import { fetchMyFollowedAnimalIds, followAnimal, unfollowAnimal } from './api';
 
 export function useMyFollows() {
   const { userId } = useAuth();
   return useQuery({
     queryKey: keys.follows.mine(userId ?? 'none'),
-    queryFn: fetchMyFollowedDogIds,
+    queryFn: fetchMyFollowedAnimalIds,
     enabled: userId != null,
     select: (ids) => new Set(ids),
   });
 }
 
 /** Optimistic follow/unfollow — the heart flips instantly. */
-export function useToggleFollow(dogId: string) {
+export function useToggleFollow(animalId: string) {
   const { userId } = useAuth();
   const queryClient = useQueryClient();
   const followsKey = keys.follows.mine(userId ?? 'none');
 
   return useMutation({
     mutationFn: async (shouldFollow: boolean) => {
-      if (!userId) throw new Error('Sign in to follow dogs');
+      if (!userId) throw new Error('Sign in to follow strays');
       if (shouldFollow) {
-        await followDog(userId, dogId);
+        await followAnimal(userId, animalId);
       } else {
-        await unfollowDog(userId, dogId);
+        await unfollowAnimal(userId, animalId);
       }
     },
     onMutate: async (shouldFollow) => {
       await queryClient.cancelQueries({ queryKey: followsKey });
       const previous = queryClient.getQueryData<string[]>(followsKey);
       queryClient.setQueryData<string[]>(followsKey, (ids = []) =>
-        shouldFollow ? [...ids, dogId] : ids.filter((id) => id !== dogId),
+        shouldFollow ? [...ids, animalId] : ids.filter((id) => id !== animalId),
       );
       return { previous };
     },
@@ -43,7 +43,7 @@ export function useToggleFollow(dogId: string) {
     },
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: followsKey });
-      void queryClient.invalidateQueries({ queryKey: keys.dogs.detail(dogId) });
+      void queryClient.invalidateQueries({ queryKey: keys.animals.detail(animalId) });
     },
   });
 }

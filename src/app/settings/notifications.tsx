@@ -57,21 +57,21 @@ export default function NotificationSettingsScreen() {
         <ScrollView contentContainerClassName="gap-3 p-4">
           <ToggleRow
             label="Emergencies nearby"
-            description="A dog near you is hurt or needs urgent help"
+            description="An animal near you is hurt or needs urgent help"
             value={settings.notify_emergency_nearby}
             onChange={(value) => updateSettings.mutate({ notify_emergency_nearby: value })}
           />
           <ToggleRow
-            label="New dogs nearby"
-            description="A new dog was added in your area"
-            value={settings.notify_new_dog_nearby}
-            onChange={(value) => updateSettings.mutate({ notify_new_dog_nearby: value })}
+            label="New strays nearby"
+            description="A new animal or cat was added in your area"
+            value={settings.notify_new_animal_nearby}
+            onChange={(value) => updateSettings.mutate({ notify_new_animal_nearby: value })}
           />
           <ToggleRow
-            label="Dogs you follow"
-            description="Feedings, medical updates and emergencies for followed dogs"
-            value={settings.notify_followed_dogs}
-            onChange={(value) => updateSettings.mutate({ notify_followed_dogs: value })}
+            label="Strays you follow"
+            description="Feedings, medical updates and emergencies for followed strays"
+            value={settings.notify_followed_animals}
+            onChange={(value) => updateSettings.mutate({ notify_followed_animals: value })}
           />
 
           <View className="gap-2 rounded-2xl bg-white p-4 dark:bg-stone-900">

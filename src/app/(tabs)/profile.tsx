@@ -35,7 +35,7 @@ export default function ProfileTab() {
               Paw Guardians
             </Text>
             <Text className="text-center text-stone-500 dark:text-stone-400">
-              Sign in to feed dogs, report emergencies and follow the dogs you care about.
+              Sign in to feed strays, report emergencies and follow the animals you care about.
             </Text>
           </View>
           <Button onPress={() => router.push('/(auth)/sign-in')}>Sign in</Button>
@@ -105,7 +105,7 @@ export default function ProfileTab() {
         ) : null}
 
         <View className="flex-row gap-3">
-          <Stat label="Dogs added" value={profile?.dogs_added_count ?? 0} />
+          <Stat label="Strays added" value={profile?.animals_added_count ?? 0} />
           <Stat label="Feedings" value={profile?.feedings_count ?? 0} />
         </View>
 

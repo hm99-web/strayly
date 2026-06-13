@@ -2,12 +2,12 @@ import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 
-import { DogCard } from '@/components/dog/DogCard';
-import { FilterSheet } from '@/components/dog/FilterSheet';
+import { AnimalCard } from '@/components/animal/AnimalCard';
+import { FilterSheet } from '@/components/animal/FilterSheet';
 import { AddressSearchModal } from '@/components/map/AddressSearchModal';
 import { Screen } from '@/components/ui/Screen';
 import { RADIUS_OPTIONS_M } from '@/constants/config';
-import { useDogsInRadius } from '@/features/dogs/hooks';
+import { useAnimalsInRadius } from '@/features/animals/hooks';
 import { useUserLocation } from '@/hooks/useUserLocation';
 import { formatDistance } from '@/lib/format';
 import { countActiveFilters, useMapStore } from '@/stores/mapStore';
@@ -23,7 +23,7 @@ export default function DogsTab() {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const activeFilters = countActiveFilters(filters);
 
-  const { data: dogs, isLoading, isRefetching, refetch } = useDogsInRadius({
+  const { data: animals, isLoading, isRefetching, refetch } = useAnimalsInRadius({
     center: searchCenter,
     radiusM,
     filters,
@@ -39,7 +39,7 @@ export default function DogsTab() {
             onPress={() => setSearchOpen(true)}
             className="flex-1 pr-2"
           >
-            <Text className="text-xs uppercase tracking-wide text-stone-400">Dogs near</Text>
+            <Text className="text-xs uppercase tracking-wide text-stone-400">Strays near</Text>
             <View className="flex-row items-center gap-1">
               <Text className="text-xl font-bold text-stone-900 dark:text-stone-100" numberOfLines={1}>
                 {searchLabel}
@@ -108,9 +108,9 @@ export default function DogsTab() {
       </View>
 
       <FlatList
-        data={dogs ?? []}
-        keyExtractor={(dog) => dog.id}
-        renderItem={({ item }) => <DogCard dog={item} />}
+        data={animals ?? []}
+        keyExtractor={(animal) => animal.id}
+        renderItem={({ item }) => <AnimalCard animal={item} />}
         contentContainerClassName="gap-2.5 px-4 pb-6"
         refreshing={isRefetching}
         onRefresh={() => void refetch()}
@@ -119,8 +119,8 @@ export default function DogsTab() {
             <Ionicons name="paw-outline" size={40} color="#A8A29E" />
             <Text className="text-center text-stone-500 dark:text-stone-400">
               {isLoading
-                ? 'Finding dogs…'
-                : `No dogs within ${formatDistance(radiusM)}. Try a bigger radius or add the first one!`}
+                ? 'Finding strays…'
+                : `No strays within ${formatDistance(radiusM)}. Try a bigger radius or add the first one!`}
             </Text>
           </View>
         }

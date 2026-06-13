@@ -18,15 +18,15 @@ export default function AddTab() {
             <Ionicons name="add" size={40} color="#EA580C" />
           </View>
           <Text className="text-2xl font-bold text-stone-900 dark:text-stone-100">
-            Spotted a street dog?
+            Spotted a stray?
           </Text>
           <Text className="text-center text-stone-500 dark:text-stone-400">
-            Add it to the map so your neighbourhood can feed and look after it. We&apos;ll check
-            nearby dogs first to avoid duplicates.
+            Add a stray or cat to the map so your neighbourhood can feed and look after it. We&apos;ll
+            check nearby strays first to avoid duplicates.
           </Text>
         </View>
-        <Button size="lg" onPress={() => requireAuth(() => router.push('/dog/new'))}>
-          Add a dog
+        <Button size="lg" onPress={() => requireAuth(() => router.push('/animal/new'))}>
+          Add a stray
         </Button>
       </View>
     </Screen>

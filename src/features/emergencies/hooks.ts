@@ -4,7 +4,7 @@ import { keys } from '@/constants/queryKeys';
 
 import {
   createEmergency,
-  fetchEmergenciesForDog,
+  fetchEmergenciesForAnimal,
   fetchEmergency,
   updateEmergencyStatus,
   type CreateEmergencyInput,
@@ -17,10 +17,10 @@ export function useEmergency(id: string) {
   });
 }
 
-export function useEmergenciesForDog(dogId: string) {
+export function useEmergenciesForAnimal(animalId: string) {
   return useQuery({
-    queryKey: keys.emergencies.forDog(dogId),
-    queryFn: () => fetchEmergenciesForDog(dogId),
+    queryKey: keys.emergencies.forDog(animalId),
+    queryFn: () => fetchEmergenciesForAnimal(animalId),
   });
 }
 
@@ -30,9 +30,9 @@ export function useCreateEmergency() {
     mutationFn: (input: CreateEmergencyInput) => createEmergency(input),
     onSettled: (_data, _error, input) => {
       void queryClient.invalidateQueries({ queryKey: ['emergencies'] });
-      void queryClient.invalidateQueries({ queryKey: keys.dogs.all });
-      if (input.dogId) {
-        void queryClient.invalidateQueries({ queryKey: keys.dogs.detail(input.dogId) });
+      void queryClient.invalidateQueries({ queryKey: keys.animals.all });
+      if (input.animalId) {
+        void queryClient.invalidateQueries({ queryKey: keys.animals.detail(input.animalId) });
       }
     },
   });
@@ -50,7 +50,7 @@ export function useUpdateEmergencyStatus(id: string) {
     }) => updateEmergencyStatus(id, status, resolutionNotes),
     onSettled: () => {
       void queryClient.invalidateQueries({ queryKey: ['emergencies'] });
-      void queryClient.invalidateQueries({ queryKey: keys.dogs.all });
+      void queryClient.invalidateQueries({ queryKey: keys.animals.all });
     },
   });
 }

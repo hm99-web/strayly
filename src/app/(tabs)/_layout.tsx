@@ -29,12 +29,12 @@ export default function TabsLayout() {
         options={{ title: 'Map', tabBarIcon: tabIcon('map', 'map-outline') }}
       />
       <Tabs.Screen
-        name="dogs"
-        options={{ title: 'Dogs', tabBarIcon: tabIcon('paw', 'paw-outline') }}
+        name="animals"
+        options={{ title: 'Strays', tabBarIcon: tabIcon('paw', 'paw-outline') }}
       />
       <Tabs.Screen
         name="add"
-        options={{ title: 'Add Dog', tabBarIcon: tabIcon('add-circle', 'add-circle-outline') }}
+        options={{ title: 'Add', tabBarIcon: tabIcon('add-circle', 'add-circle-outline') }}
       />
       <Tabs.Screen
         name="alerts"

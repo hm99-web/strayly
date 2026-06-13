@@ -1,4 +1,4 @@
-// Push fan-out: invoked by pg_net triggers (emergencies, new dogs, followed-dog
+// Push fan-out: invoked by pg_net triggers (emergencies, new animals, followed-animal
 // activity). Resolves the audience server-side, writes notifications rows
 // (Realtime streams them to the Alerts tab) and sends Expo pushes.
 //
@@ -13,17 +13,17 @@ type FanoutPayload =
   | {
       type: 'emergency_created';
       emergency_id: string;
-      dog_id: string | null;
+      animal_id: string | null;
       emergency_type: string;
       severity: string;
       lat: number;
       lng: number;
       reported_by: string;
     }
-  | { type: 'new_dog_nearby'; dog_id: string; name: string; lat: number; lng: number; created_by: string }
+  | { type: 'new_animal_nearby'; animal_id: string; name: string; species: string; lat: number; lng: number; created_by: string }
   | {
-      type: 'followed_dog_update';
-      dog_id: string;
+      type: 'followed_animal_update';
+      animal_id: string;
       activity_id: number;
       activity_type: string;
       actor_id: string | null;
@@ -78,38 +78,38 @@ Deno.serve(async (req) => {
       recipients = data ?? [];
       notificationType = 'emergency_nearby';
       title = `🚨 ${titleCase(payload.emergency_type)} emergency nearby`;
-      body = `Severity: ${payload.severity}. A street dog near you needs help.`;
+      body = `Severity: ${payload.severity}. A stray near you needs help.`;
       url = `/emergency/${payload.emergency_id}`;
       channelId = 'emergency';
       break;
     }
-    case 'new_dog_nearby': {
+    case 'new_animal_nearby': {
       const { data, error } = await admin.rpc('users_to_notify', {
         p_lat: payload.lat,
         p_lng: payload.lng,
-        p_kind: 'new_dog_nearby',
+        p_kind: 'new_animal_nearby',
         p_exclude: payload.created_by,
       });
       if (error) return new Response(error.message, { status: 500 });
       recipients = data ?? [];
-      notificationType = 'new_dog_nearby';
-      title = `🐾 ${payload.name} was just added near you`;
+      notificationType = 'new_animal_nearby';
+      title = `🐾 ${payload.name} the ${payload.species} was just added near you`;
       body = 'Take a look — maybe you can help feed them.';
-      url = `/dog/${payload.dog_id}`;
+      url = `/animal/${payload.animal_id}`;
       break;
     }
-    case 'followed_dog_update': {
+    case 'followed_animal_update': {
       const { data, error } = await admin.rpc('followers_to_notify', {
-        p_dog_id: payload.dog_id,
+        p_animal_id: payload.animal_id,
         p_exclude: payload.actor_id,
       });
       if (error) return new Response(error.message, { status: 500 });
       recipients = data ?? [];
-      const { data: dog } = await admin.from('dogs').select('name').eq('id', payload.dog_id).single();
-      notificationType = 'followed_dog_update';
-      title = `Update on ${dog?.name ?? 'a dog you follow'}`;
+      const { data: animal } = await admin.from('animals').select('name').eq('id', payload.animal_id).single();
+      notificationType = 'followed_animal_update';
+      title = `Update on ${animal?.name ?? 'a stray you follow'}`;
       body = payload.summary ?? titleCase(payload.activity_type);
-      url = `/dog/${payload.dog_id}`;
+      url = `/animal/${payload.animal_id}`;
       break;
     }
     default:

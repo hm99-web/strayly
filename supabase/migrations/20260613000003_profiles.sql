@@ -22,7 +22,7 @@ create table public.profiles (
   is_anonymous boolean not null default false,
   -- Denormalized, maintained by SECURITY DEFINER triggers only:
   trust_score integer not null default 0,
-  dogs_added_count integer not null default 0,
+  animals_added_count integer not null default 0,
   feedings_count integer not null default 0,
   created_at timestamptz not null default now(),
   updated_at timestamptz not null default now()
@@ -45,8 +45,8 @@ create table public.user_settings (
   notification_radius_m integer not null default 2000
     check (notification_radius_m between 100 and 50000),
   notify_emergency_nearby boolean not null default true,
-  notify_new_dog_nearby boolean not null default true,
-  notify_followed_dogs boolean not null default true,
+  notify_new_animal_nearby boolean not null default true,
+  notify_followed_animals boolean not null default true,
   updated_at timestamptz not null default now()
 );
 

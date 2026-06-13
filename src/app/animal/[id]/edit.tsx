@@ -8,33 +8,33 @@ import { z } from 'zod';
 import { EnumChips } from '@/components/forms/EnumChips';
 import { FormInput } from '@/components/forms/FormInput';
 import { Button } from '@/components/ui/Button';
-import { useDog, useUpdateDog } from '@/features/dogs/hooks';
+import { useDog, useUpdateAnimal } from '@/features/animals/hooks';
 import {
-  createDogSchema,
-  dogGenderValues,
-  dogHealthValues,
-  dogTemperamentValues,
+  createAnimalSchema,
+  animalGenderValues,
+  animalHealthValues,
+  animalTemperamentValues,
   toEstimatedAgeMonths,
-} from '@/features/dogs/schemas';
+} from '@/features/animals/schemas';
 
-const dogStatusValues = ['active', 'missing', 'adopted', 'deceased', 'relocated'] as const;
+const animalStatusValues = ['active', 'missing', 'adopted', 'deceased', 'relocated'] as const;
 
-const editDogSchema = createDogSchema
+const editDogSchema = createAnimalSchema
   .omit({ vaccinationStatus: true, sterilizationStatus: true })
-  .extend({ status: z.enum(dogStatusValues) });
+  .extend({ status: z.enum(animalStatusValues) });
 type EditDogValues = z.infer<typeof editDogSchema>;
 
 export default function EditDogScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-  const { data: dog } = useDog(id);
-  const updateDog = useUpdateDog(id);
+  const { data: animal } = useDog(id);
+  const updateAnimal = useUpdateAnimal(id);
   const [error, setError] = useState<string | null>(null);
 
-  if (!dog) {
+  if (!animal) {
     return (
       <>
-        <Stack.Screen options={{ title: 'Edit dog' }} />
+        <Stack.Screen options={{ title: 'Edit animal' }} />
         <View className="flex-1 items-center justify-center bg-stone-50 dark:bg-stone-950">
           <Text className="text-stone-500 dark:text-stone-400">Loading…</Text>
         </View>
@@ -42,18 +42,18 @@ export default function EditDogScreen() {
     );
   }
 
-  return <EditDogForm key={dog.id} dog={dog} onError={setError} error={error} onDone={() => router.back()} updateDog={updateDog} />;
+  return <EditDogForm key={animal.id} animal={animal} onError={setError} error={error} onDone={() => router.back()} updateAnimal={updateAnimal} />;
 }
 
 function EditDogForm({
-  dog,
-  updateDog,
+  animal,
+  updateAnimal,
   error,
   onError,
   onDone,
 }: {
-  dog: NonNullable<ReturnType<typeof useDog>['data']>;
-  updateDog: ReturnType<typeof useUpdateDog>;
+  animal: NonNullable<ReturnType<typeof useDog>['data']>;
+  updateAnimal: ReturnType<typeof useUpdateAnimal>;
   error: string | null;
   onError: (message: string | null) => void;
   onDone: () => void;
@@ -61,24 +61,24 @@ function EditDogForm({
   const { control, handleSubmit, formState } = useForm<EditDogValues>({
     resolver: zodResolver(editDogSchema),
     defaultValues: {
-      name: dog.name,
-      description: dog.description ?? '',
-      gender: dog.gender,
-      ageYears: dog.estimated_age_months != null ? String(Math.floor(dog.estimated_age_months / 12)) : '',
-      ageMonths: dog.estimated_age_months != null ? String(dog.estimated_age_months % 12) : '',
-      temperament: dog.temperament,
-      colorMarkings: dog.color_markings ?? '',
-      healthStatus: dog.health_status,
-      hasPuppies: dog.has_puppies,
-      medicalNotes: dog.medical_notes ?? '',
-      status: dog.status,
+      name: animal.name,
+      description: animal.description ?? '',
+      gender: animal.gender,
+      ageYears: animal.estimated_age_months != null ? String(Math.floor(animal.estimated_age_months / 12)) : '',
+      ageMonths: animal.estimated_age_months != null ? String(animal.estimated_age_months % 12) : '',
+      temperament: animal.temperament,
+      colorMarkings: animal.color_markings ?? '',
+      healthStatus: animal.health_status,
+      hasPuppies: animal.has_babies,
+      medicalNotes: animal.medical_notes ?? '',
+      status: animal.status,
     },
   });
 
   const onSubmit = handleSubmit(async (values) => {
     onError(null);
     try {
-      await updateDog.mutateAsync({
+      await updateAnimal.mutateAsync({
         name: values.name,
         description: values.description || null,
         gender: values.gender,
@@ -86,7 +86,7 @@ function EditDogForm({
         temperament: values.temperament,
         color_markings: values.colorMarkings || null,
         health_status: values.healthStatus,
-        has_puppies: values.hasPuppies,
+        has_babies: values.hasPuppies,
         medical_notes: values.medicalNotes || null,
         status: values.status,
       });
@@ -98,7 +98,7 @@ function EditDogForm({
 
   return (
     <>
-      <Stack.Screen options={{ title: `Edit ${dog.name}` }} />
+      <Stack.Screen options={{ title: `Edit ${animal.name}` }} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1 bg-stone-50 dark:bg-stone-950"
@@ -110,7 +110,7 @@ function EditDogForm({
             control={control}
             name="gender"
             render={({ field }) => (
-              <EnumChips label="Gender" options={dogGenderValues} value={field.value} onChange={field.onChange} />
+              <EnumChips label="Gender" options={animalGenderValues} value={field.value} onChange={field.onChange} />
             )}
           />
           <View className="flex-row gap-3">
@@ -125,7 +125,7 @@ function EditDogForm({
             control={control}
             name="temperament"
             render={({ field }) => (
-              <EnumChips label="Temperament" options={dogTemperamentValues} value={field.value} onChange={field.onChange} />
+              <EnumChips label="Temperament" options={animalTemperamentValues} value={field.value} onChange={field.onChange} />
             )}
           />
           <FormInput control={control} name="colorMarkings" label="Color / markings" />
@@ -133,14 +133,14 @@ function EditDogForm({
             control={control}
             name="healthStatus"
             render={({ field }) => (
-              <EnumChips label="Health" options={dogHealthValues} value={field.value} onChange={field.onChange} />
+              <EnumChips label="Health" options={animalHealthValues} value={field.value} onChange={field.onChange} />
             )}
           />
           <Controller
             control={control}
             name="status"
             render={({ field }) => (
-              <EnumChips label="Status" options={dogStatusValues} value={field.value} onChange={field.onChange} />
+              <EnumChips label="Status" options={animalStatusValues} value={field.value} onChange={field.onChange} />
             )}
           />
           <Controller
@@ -148,7 +148,7 @@ function EditDogForm({
             name="hasPuppies"
             render={({ field }) => (
               <View className="flex-row items-center justify-between rounded-xl bg-white px-4 py-3 dark:bg-stone-900">
-                <Text className="font-medium text-stone-700 dark:text-stone-300">Puppies present</Text>
+                <Text className="font-medium text-stone-700 dark:text-stone-300">Puppies / kittens present</Text>
                 <Switch value={field.value} onValueChange={field.onChange} />
               </View>
             )}

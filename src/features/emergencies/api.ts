@@ -4,12 +4,12 @@ import { supabase } from '@/lib/supabase';
 import { toWkt, type EmergencyReport, type EmergencyType, type LatLng, type SeverityLevel } from '@/types/domain';
 
 export interface CreateEmergencyInput {
-  dogId?: string;
+  animalId?: string;
   emergencyType: EmergencyType;
   severity: SeverityLevel;
   description?: string;
   photos?: PickedImage[];
-  /** Falls back to current GPS position, then to the dog's location server-side. */
+  /** Falls back to current GPS position, then to the animal's location server-side. */
   location?: LatLng;
   addressText?: string;
 }
@@ -22,15 +22,15 @@ export async function createEmergency(input: CreateEmergencyInput): Promise<stri
 
   const photoPaths: string[] = [];
   for (const photo of input.photos ?? []) {
-    const prefix = input.dogId ? `${input.dogId}/emergencies` : 'unknown/emergencies';
-    const uploaded = await compressAndUpload('dog-media', prefix, photo);
+    const prefix = input.animalId ? `${input.animalId}/emergencies` : 'unknown/emergencies';
+    const uploaded = await compressAndUpload('animal-media', prefix, photo);
     photoPaths.push(uploaded.path);
   }
 
   const { data, error } = await supabase
     .from('emergency_reports')
     .insert({
-      dog_id: input.dogId ?? null,
+      animal_id: input.animalId ?? null,
       emergency_type: input.emergencyType,
       severity: input.severity,
       description: input.description || null,
@@ -54,11 +54,11 @@ export async function fetchEmergency(id: string): Promise<EmergencyReport> {
   return data;
 }
 
-export async function fetchEmergenciesForDog(dogId: string): Promise<EmergencyReport[]> {
+export async function fetchEmergenciesForAnimal(animalId: string): Promise<EmergencyReport[]> {
   const { data, error } = await supabase
     .from('emergency_reports')
     .select('*')
-    .eq('dog_id', dogId)
+    .eq('animal_id', animalId)
     .order('created_at', { ascending: false })
     .limit(20);
   if (error) throw error;

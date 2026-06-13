@@ -68,7 +68,7 @@ export interface UploadedImage {
  * Uploads as ArrayBuffer — Blob uploads are unreliable in React Native.
  */
 export async function compressAndUpload(
-  bucket: 'avatars' | 'dog-media',
+  bucket: 'avatars' | 'animal-media',
   pathPrefix: string,
   image: PickedImage,
 ): Promise<UploadedImage> {

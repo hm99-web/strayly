@@ -62,9 +62,9 @@ where user_id in (
 -- Dogs: 25 across Bengaluru neighbourhoods (triggers create the initial
 -- location row, activity entry, and bump author counters).
 -- ---------------------------------------------------------------------------
-insert into public.dogs (
+insert into public.animals (
   id, name, description, gender, estimated_age_months, temperament, color_markings,
-  health_status, has_puppies, vaccination_status, sterilization_status,
+  health_status, has_babies, vaccination_status, sterilization_status,
   location, address_text, city, created_by
 )
 values
@@ -105,31 +105,31 @@ values
 -- Feedings: mix of green (<24h), yellow (24–72h) and red (>72h / never).
 -- Trigger maintains dogs.last_fed_at + counters + activity log.
 -- ---------------------------------------------------------------------------
-insert into public.feeding_records (dog_id, fed_by, food_type, notes, fed_at)
+insert into public.feeding_records (animal_id, fed_by, food_type, notes, fed_at)
 select
   ('d0000000-0000-4000-8000-0000000000' || lpad(v.dog_no::text, 2, '0'))::uuid,
   v.fed_by::uuid, v.food_type::public.food_type, v.notes,
   now() - (v.hours_ago || ' hours')::interval
 from (
   values
-    (1,  'f0000000-0000-4000-8000-000000000002', 'dog_food', 'Morning round', 3),
+    (1,  'f0000000-0000-4000-8000-000000000002', 'pet_food', 'Morning round', 3),
     (2,  'f0000000-0000-4000-8000-000000000001', 'milk', 'For the pups too', 5),
     (3,  'f0000000-0000-4000-8000-000000000002', 'rice', null, 18),
     (4,  'f0000000-0000-4000-8000-000000000003', 'biscuits', null, 30),
-    (6,  'f0000000-0000-4000-8000-000000000001', 'dog_food', null, 8),
+    (6,  'f0000000-0000-4000-8000-000000000001', 'pet_food', null, 8),
     (7,  'f0000000-0000-4000-8000-000000000002', 'meat', 'Extra portion, she is healing', 12),
     (8,  'f0000000-0000-4000-8000-000000000003', 'biscuits', null, 40),
-    (9,  'f0000000-0000-4000-8000-000000000001', 'dog_food', 'Eating well', 6),
+    (9,  'f0000000-0000-4000-8000-000000000001', 'pet_food', 'Eating well', 6),
     (10, 'f0000000-0000-4000-8000-000000000002', 'rice', null, 55),
     (11, 'f0000000-0000-4000-8000-000000000002', 'leftovers', 'From the bakery', 26),
-    (12, 'f0000000-0000-4000-8000-000000000003', 'dog_food', 'Puppies tried solid food', 4),
+    (12, 'f0000000-0000-4000-8000-000000000003', 'pet_food', 'Puppies tried solid food', 4),
     (14, 'f0000000-0000-4000-8000-000000000003', 'biscuits', null, 90),
-    (15, 'f0000000-0000-4000-8000-000000000001', 'dog_food', null, 10),
+    (15, 'f0000000-0000-4000-8000-000000000001', 'pet_food', null, 10),
     (17, 'f0000000-0000-4000-8000-000000000001', 'rice', 'Market scraps too', 20),
     (18, 'f0000000-0000-4000-8000-000000000003', 'milk', null, 48),
-    (21, 'f0000000-0000-4000-8000-000000000001', 'dog_food', null, 7),
+    (21, 'f0000000-0000-4000-8000-000000000001', 'pet_food', null, 7),
     (22, 'f0000000-0000-4000-8000-000000000003', 'milk', 'Growing fast', 2),
-    (23, 'f0000000-0000-4000-8000-000000000002', 'dog_food', null, 36),
+    (23, 'f0000000-0000-4000-8000-000000000002', 'pet_food', null, 36),
     (24, 'f0000000-0000-4000-8000-000000000001', 'biscuits', null, 100)
 ) as v (dog_no, fed_by, food_type, notes, hours_ago);
 
@@ -137,7 +137,7 @@ from (
 -- Vaccinations (trigger flips dogs.vaccination_status to 'yes').
 -- ---------------------------------------------------------------------------
 insert into public.vaccination_records
-  (dog_id, vaccine_type, vaccine_name, administered_at, next_due_at, administered_by_text, recorded_by)
+  (animal_id, vaccine_type, vaccine_name, administered_at, next_due_at, administered_by_text, recorded_by)
 select
   ('d0000000-0000-4000-8000-0000000000' || lpad(v.dog_no::text, 2, '0'))::uuid,
   'rabies', 'Raksharab', (now() - (v.months_ago || ' months')::interval)::date,
@@ -162,7 +162,7 @@ from (
 -- Medical: sterilizations + Laila's injury + Shadow's illness.
 -- ---------------------------------------------------------------------------
 insert into public.medical_records
-  (dog_id, record_type, title, description, observed_health_status, severity, performed_at, recorded_by)
+  (animal_id, record_type, title, description, observed_health_status, severity, performed_at, recorded_by)
 values
   ('d0000000-0000-4000-8000-000000000001', 'sterilization', 'ABC surgery', 'Neutered under BBMP ABC programme, ear notched.', null, null, now() - interval '14 months', 'f0000000-0000-4000-8000-000000000001'),
   ('d0000000-0000-4000-8000-000000000003', 'sterilization', 'ABC surgery', 'Neutered, recovered well.', null, null, now() - interval '20 months', 'f0000000-0000-4000-8000-000000000002'),
@@ -178,7 +178,7 @@ values
 -- Emergencies: one open critical (hit by vehicle), one in_progress.
 -- ---------------------------------------------------------------------------
 insert into public.emergency_reports
-  (id, dog_id, reported_by, emergency_type, severity, description, location, address_text, status)
+  (id, animal_id, reported_by, emergency_type, severity, description, location, address_text, status)
 values
   ('e0000000-0000-4000-8000-000000000001',
    'd0000000-0000-4000-8000-000000000007', 'f0000000-0000-4000-8000-000000000003',
@@ -194,7 +194,7 @@ values
 -- ---------------------------------------------------------------------------
 -- Follows (trigger maintains dogs.followers_count).
 -- ---------------------------------------------------------------------------
-insert into public.dog_follows (user_id, dog_id)
+insert into public.animal_follows (user_id, animal_id)
 values
   ('f0000000-0000-4000-8000-000000000002', 'd0000000-0000-4000-8000-000000000001'),
   ('f0000000-0000-4000-8000-000000000002', 'd0000000-0000-4000-8000-000000000007'),
@@ -202,3 +202,51 @@ values
   ('f0000000-0000-4000-8000-000000000003', 'd0000000-0000-4000-8000-000000000002'),
   ('f0000000-0000-4000-8000-000000000003', 'd0000000-0000-4000-8000-000000000022'),
   ('f0000000-0000-4000-8000-000000000001', 'd0000000-0000-4000-8000-000000000016');
+
+-- ---------------------------------------------------------------------------
+-- Cats: 8 strays across the same neighbourhoods.
+-- ---------------------------------------------------------------------------
+insert into public.animals (
+  id, name, species, description, gender, estimated_age_months, temperament, color_markings,
+  health_status, has_babies, vaccination_status, sterilization_status,
+  location, address_text, city, created_by
+)
+values
+  ('d0000000-0000-4000-8000-000000000026', 'Billi', 'cat', 'Calm tabby who suns herself on the bakery steps.', 'female', 36, 'calm', 'Brown tabby', 'healthy', false, 'unknown', 'yes', st_setsrid(st_makepoint(77.6252, 12.9347), 4326), '5th Block, Koramangala', 'Bengaluru', 'f0000000-0000-4000-8000-000000000001'),
+  ('d0000000-0000-4000-8000-000000000027', 'Mau', 'cat', 'Vocal white male, begs outside the cafe at lunch.', 'male', 28, 'friendly', 'White, grey tail', 'healthy', false, 'no', 'no', st_setsrid(st_makepoint(77.6419, 12.9724), 4326), '100 Feet Road, Indiranagar', 'Bengaluru', 'f0000000-0000-4000-8000-000000000002'),
+  ('d0000000-0000-4000-8000-000000000028', 'Mishti', 'cat', 'Mother cat with kittens behind the cycle stand.', 'female', 30, 'shy', 'Calico', 'nursing', true, 'unknown', 'no', st_setsrid(st_makepoint(77.6468, 12.9105), 4326), 'Sector 2, HSR Layout', 'Bengaluru', 'f0000000-0000-4000-8000-000000000003'),
+  ('d0000000-0000-4000-8000-000000000029', 'Sundar', 'cat', 'Big friendly tom, patrols the parking row.', 'male', 48, 'friendly', 'Orange', 'healthy', false, 'yes', 'yes', st_setsrid(st_makepoint(77.6071, 12.9752), 4326), 'MG Road Boulevard', 'Bengaluru', 'f0000000-0000-4000-8000-000000000001'),
+  ('d0000000-0000-4000-8000-000000000030', 'Chhoti', 'cat', 'Tiny female, very fast, lives near the temple wall.', 'female', 14, 'fearful', 'Grey and white', 'healthy', false, 'unknown', 'no', st_setsrid(st_makepoint(77.5846, 12.9301), 4326), '4th Block, Jayanagar', 'Bengaluru', 'f0000000-0000-4000-8000-000000000002'),
+  ('d0000000-0000-4000-8000-000000000031', 'Bagheera', 'cat', 'All-black male, only appears at dusk.', 'male', 40, 'shy', 'All black, green eyes', 'healthy', false, 'no', 'unknown', st_setsrid(st_makepoint(77.5938, 12.9758), 4326), 'Cubbon Park east gate', 'Bengaluru', 'f0000000-0000-4000-8000-000000000003'),
+  ('d0000000-0000-4000-8000-000000000032', 'Gulabo', 'cat', 'Sweet female with a notched ear, loves milk.', 'female', 32, 'friendly', 'White with brown patches', 'healthy', false, 'unknown', 'yes', st_setsrid(st_makepoint(77.5716, 13.0041), 4326), '8th Cross, Malleshwaram', 'Bengaluru', 'f0000000-0000-4000-8000-000000000001'),
+  ('d0000000-0000-4000-8000-000000000033', 'Tikku', 'cat', 'Kitten growing up near the security cabin with Pintu the dog.', 'male', 6, 'playful', 'Black and white', 'healthy', false, 'no', 'no', st_setsrid(st_makepoint(77.7481, 12.9708), 4326), 'Whitefield Main Road', 'Bengaluru', 'f0000000-0000-4000-8000-000000000002');
+
+insert into public.feeding_records (animal_id, fed_by, food_type, notes, fed_at)
+select
+  ('d0000000-0000-4000-8000-0000000000' || lpad(v.animal_no::text, 2, '0'))::uuid,
+  v.fed_by::uuid, v.food_type::public.food_type, v.notes,
+  now() - (v.hours_ago || ' hours')::interval
+from (
+  values
+    (26, 'f0000000-0000-4000-8000-000000000001', 'milk', null, 4),
+    (27, 'f0000000-0000-4000-8000-000000000002', 'pet_food', 'Loves the fish flavour', 30),
+    (28, 'f0000000-0000-4000-8000-000000000003', 'milk', 'For the kittens too', 6),
+    (29, 'f0000000-0000-4000-8000-000000000001', 'meat', null, 80),
+    (33, 'f0000000-0000-4000-8000-000000000002', 'milk', 'Growing kitten', 3)
+) as v (animal_no, fed_by, food_type, notes, hours_ago);
+
+insert into public.vaccination_records
+  (animal_id, vaccine_type, vaccine_name, administered_at, next_due_at, administered_by_text, recorded_by)
+values
+  ('d0000000-0000-4000-8000-000000000029', 'rabies', 'Raksharab', (now() - interval '4 months')::date, (now() + interval '8 months')::date, 'CUPA mobile clinic', 'f0000000-0000-4000-8000-000000000001');
+
+insert into public.medical_records
+  (animal_id, record_type, title, description, performed_at, recorded_by)
+values
+  ('d0000000-0000-4000-8000-000000000026', 'sterilization', 'Spay surgery', 'Spayed under ABC programme, ear notched.', now() - interval '10 months', 'f0000000-0000-4000-8000-000000000001'),
+  ('d0000000-0000-4000-8000-000000000032', 'sterilization', 'Spay surgery', 'Spayed, recovered well.', now() - interval '18 months', 'f0000000-0000-4000-8000-000000000001');
+
+insert into public.animal_follows (user_id, animal_id)
+values
+  ('f0000000-0000-4000-8000-000000000003', 'd0000000-0000-4000-8000-000000000028'),
+  ('f0000000-0000-4000-8000-000000000002', 'd0000000-0000-4000-8000-000000000033');

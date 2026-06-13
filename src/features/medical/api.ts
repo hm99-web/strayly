@@ -1,7 +1,7 @@
 import { compressAndUpload, type PickedImage } from '@/lib/images';
 import { supabase } from '@/lib/supabase';
 import type {
-  DogHealthStatus,
+  AnimalHealthStatus,
   MedicalRecord,
   MedicalRecordType,
   SeverityLevel,
@@ -10,11 +10,11 @@ import type {
 } from '@/types/domain';
 
 export interface AddMedicalRecordInput {
-  dogId: string;
+  animalId: string;
   recordType: MedicalRecordType;
   title: string;
   description?: string;
-  observedHealthStatus?: DogHealthStatus;
+  observedHealthStatus?: AnimalHealthStatus;
   severity?: SeverityLevel;
   treatedByText?: string;
   photos?: PickedImage[];
@@ -23,12 +23,12 @@ export interface AddMedicalRecordInput {
 export async function addMedicalRecord(input: AddMedicalRecordInput): Promise<void> {
   const photoPaths: string[] = [];
   for (const photo of input.photos ?? []) {
-    const uploaded = await compressAndUpload('dog-media', `${input.dogId}/medical`, photo);
+    const uploaded = await compressAndUpload('animal-media', `${input.animalId}/medical`, photo);
     photoPaths.push(uploaded.path);
   }
 
   const { error } = await supabase.from('medical_records').insert({
-    dog_id: input.dogId,
+    animal_id: input.animalId,
     record_type: input.recordType,
     title: input.title,
     description: input.description || null,
@@ -40,11 +40,11 @@ export async function addMedicalRecord(input: AddMedicalRecordInput): Promise<vo
   if (error) throw error;
 }
 
-export async function fetchMedicalRecords(dogId: string, limit = 30): Promise<MedicalRecord[]> {
+export async function fetchMedicalRecords(animalId: string, limit = 30): Promise<MedicalRecord[]> {
   const { data, error } = await supabase
     .from('medical_records')
     .select('*')
-    .eq('dog_id', dogId)
+    .eq('animal_id', animalId)
     .order('performed_at', { ascending: false })
     .limit(limit);
   if (error) throw error;
@@ -52,7 +52,7 @@ export async function fetchMedicalRecords(dogId: string, limit = 30): Promise<Me
 }
 
 export interface AddVaccinationInput {
-  dogId: string;
+  animalId: string;
   vaccineType: VaccineType;
   vaccineName?: string;
   administeredAt: string; // YYYY-MM-DD
@@ -65,12 +65,12 @@ export interface AddVaccinationInput {
 export async function addVaccination(input: AddVaccinationInput): Promise<void> {
   let proofPath: string | null = null;
   if (input.proofPhoto) {
-    const uploaded = await compressAndUpload('dog-media', `${input.dogId}/vaccinations`, input.proofPhoto);
+    const uploaded = await compressAndUpload('animal-media', `${input.animalId}/vaccinations`, input.proofPhoto);
     proofPath = uploaded.path;
   }
 
   const { error } = await supabase.from('vaccination_records').insert({
-    dog_id: input.dogId,
+    animal_id: input.animalId,
     vaccine_type: input.vaccineType,
     vaccine_name: input.vaccineName || null,
     administered_at: input.administeredAt,
@@ -82,11 +82,11 @@ export async function addVaccination(input: AddVaccinationInput): Promise<void> 
   if (error) throw error;
 }
 
-export async function fetchVaccinations(dogId: string): Promise<VaccinationRecord[]> {
+export async function fetchVaccinations(animalId: string): Promise<VaccinationRecord[]> {
   const { data, error } = await supabase
     .from('vaccination_records')
     .select('*')
-    .eq('dog_id', dogId)
+    .eq('animal_id', animalId)
     .order('administered_at', { ascending: false })
     .limit(30);
   if (error) throw error;

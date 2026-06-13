@@ -72,7 +72,7 @@ export default function UpgradeScreen() {
             Keep your contributions
           </Text>
           <Text className="text-center text-stone-500 dark:text-stone-400">
-            Add an email and password — every dog you added or fed as a guest stays yours.
+            Add an email and password — every animal you added or fed as a guest stays yours.
           </Text>
         </View>
 

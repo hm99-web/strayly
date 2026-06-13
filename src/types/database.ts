@@ -13,8 +13,8 @@ export type Database = {
         Row: {
           activity_type: Database["public"]["Enums"]["activity_type"]
           actor_id: string | null
+          animal_id: string
           created_at: string
-          dog_id: string
           id: number
           metadata: Json
           ref_id: string | null
@@ -24,8 +24,8 @@ export type Database = {
         Insert: {
           activity_type: Database["public"]["Enums"]["activity_type"]
           actor_id?: string | null
+          animal_id: string
           created_at?: string
-          dog_id: string
           id?: never
           metadata?: Json
           ref_id?: string | null
@@ -35,8 +35,8 @@ export type Database = {
         Update: {
           activity_type?: Database["public"]["Enums"]["activity_type"]
           actor_id?: string | null
+          animal_id?: string
           created_at?: string
-          dog_id?: string
           id?: never
           metadata?: Json
           ref_id?: string | null
@@ -52,48 +52,307 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "activity_logs_dog_id_fkey"
-            columns: ["dog_id"]
+            foreignKeyName: "activity_logs_animal_id_fkey"
+            columns: ["animal_id"]
             isOneToOne: false
-            referencedRelation: "dogs"
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      animal_follows: {
+        Row: {
+          animal_id: string
+          created_at: string
+          user_id: string
+        }
+        Insert: {
+          animal_id: string
+          created_at?: string
+          user_id: string
+        }
+        Update: {
+          animal_id?: string
+          created_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animal_follows_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "animal_follows_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      animal_locations: {
+        Row: {
+          accuracy_m: number | null
+          animal_id: string
+          created_at: string
+          id: number
+          location: unknown
+          note: string | null
+          recorded_by: string
+          source: Database["public"]["Enums"]["location_source"]
+        }
+        Insert: {
+          accuracy_m?: number | null
+          animal_id: string
+          created_at?: string
+          id?: never
+          location: unknown
+          note?: string | null
+          recorded_by?: string
+          source?: Database["public"]["Enums"]["location_source"]
+        }
+        Update: {
+          accuracy_m?: number | null
+          animal_id?: string
+          created_at?: string
+          id?: never
+          location?: unknown
+          note?: string | null
+          recorded_by?: string
+          source?: Database["public"]["Enums"]["location_source"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animal_locations_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "animal_locations_recorded_by_fkey"
+            columns: ["recorded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      animal_photos: {
+        Row: {
+          animal_id: string
+          caption: string | null
+          created_at: string
+          height: number | null
+          id: string
+          is_primary: boolean
+          storage_path: string
+          thumb_path: string | null
+          uploaded_by: string
+          width: number | null
+        }
+        Insert: {
+          animal_id: string
+          caption?: string | null
+          created_at?: string
+          height?: number | null
+          id?: string
+          is_primary?: boolean
+          storage_path: string
+          thumb_path?: string | null
+          uploaded_by?: string
+          width?: number | null
+        }
+        Update: {
+          animal_id?: string
+          caption?: string | null
+          created_at?: string
+          height?: number | null
+          id?: string
+          is_primary?: boolean
+          storage_path?: string
+          thumb_path?: string | null
+          uploaded_by?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animal_photos_animal_id_fkey"
+            columns: ["animal_id"]
+            isOneToOne: false
+            referencedRelation: "animals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "animal_photos_uploaded_by_fkey"
+            columns: ["uploaded_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      animals: {
+        Row: {
+          address_text: string | null
+          city: string | null
+          color_markings: string | null
+          created_at: string
+          created_by: string
+          deleted_at: string | null
+          description: string | null
+          estimated_age_months: number | null
+          feedings_count: number
+          followers_count: number
+          gender: Database["public"]["Enums"]["animal_gender"]
+          has_active_emergency: boolean
+          has_babies: boolean
+          health_status: Database["public"]["Enums"]["animal_health_status"]
+          id: string
+          last_fed_at: string | null
+          last_fed_by: string | null
+          last_seen_at: string
+          last_seen_by: string | null
+          location: unknown
+          medical_notes: string | null
+          name: string
+          primary_photo_path: string | null
+          primary_thumb_path: string | null
+          species: Database["public"]["Enums"]["species"]
+          status: Database["public"]["Enums"]["animal_status"]
+          sterilization_status: Database["public"]["Enums"]["tri_state"]
+          sterilized_at: string | null
+          temperament: Database["public"]["Enums"]["animal_temperament"]
+          updated_at: string
+          vaccination_status: Database["public"]["Enums"]["tri_state"]
+        }
+        Insert: {
+          address_text?: string | null
+          city?: string | null
+          color_markings?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          description?: string | null
+          estimated_age_months?: number | null
+          feedings_count?: number
+          followers_count?: number
+          gender?: Database["public"]["Enums"]["animal_gender"]
+          has_active_emergency?: boolean
+          has_babies?: boolean
+          health_status?: Database["public"]["Enums"]["animal_health_status"]
+          id?: string
+          last_fed_at?: string | null
+          last_fed_by?: string | null
+          last_seen_at?: string
+          last_seen_by?: string | null
+          location: unknown
+          medical_notes?: string | null
+          name: string
+          primary_photo_path?: string | null
+          primary_thumb_path?: string | null
+          species?: Database["public"]["Enums"]["species"]
+          status?: Database["public"]["Enums"]["animal_status"]
+          sterilization_status?: Database["public"]["Enums"]["tri_state"]
+          sterilized_at?: string | null
+          temperament?: Database["public"]["Enums"]["animal_temperament"]
+          updated_at?: string
+          vaccination_status?: Database["public"]["Enums"]["tri_state"]
+        }
+        Update: {
+          address_text?: string | null
+          city?: string | null
+          color_markings?: string | null
+          created_at?: string
+          created_by?: string
+          deleted_at?: string | null
+          description?: string | null
+          estimated_age_months?: number | null
+          feedings_count?: number
+          followers_count?: number
+          gender?: Database["public"]["Enums"]["animal_gender"]
+          has_active_emergency?: boolean
+          has_babies?: boolean
+          health_status?: Database["public"]["Enums"]["animal_health_status"]
+          id?: string
+          last_fed_at?: string | null
+          last_fed_by?: string | null
+          last_seen_at?: string
+          last_seen_by?: string | null
+          location?: unknown
+          medical_notes?: string | null
+          name?: string
+          primary_photo_path?: string | null
+          primary_thumb_path?: string | null
+          species?: Database["public"]["Enums"]["species"]
+          status?: Database["public"]["Enums"]["animal_status"]
+          sterilization_status?: Database["public"]["Enums"]["tri_state"]
+          sterilized_at?: string | null
+          temperament?: Database["public"]["Enums"]["animal_temperament"]
+          updated_at?: string
+          vaccination_status?: Database["public"]["Enums"]["tri_state"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "animals_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "animals_last_fed_by_fkey"
+            columns: ["last_fed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "animals_last_seen_by_fkey"
+            columns: ["last_seen_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
       comments: {
         Row: {
+          animal_id: string
           body: string
           created_at: string
           deleted_at: string | null
-          dog_id: string
           id: string
           parent_id: string | null
           user_id: string
         }
         Insert: {
+          animal_id: string
           body: string
           created_at?: string
           deleted_at?: string | null
-          dog_id: string
           id?: string
           parent_id?: string | null
           user_id?: string
         }
         Update: {
+          animal_id?: string
           body?: string
           created_at?: string
           deleted_at?: string | null
-          dog_id?: string
           id?: string
           parent_id?: string | null
           user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "comments_dog_id_fkey"
-            columns: ["dog_id"]
+            foreignKeyName: "comments_animal_id_fkey"
+            columns: ["animal_id"]
             isOneToOne: false
-            referencedRelation: "dogs"
+            referencedRelation: "animals"
             referencedColumns: ["id"]
           },
           {
@@ -166,268 +425,12 @@ export type Database = {
           },
         ]
       }
-      dog_follows: {
-        Row: {
-          created_at: string
-          dog_id: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          dog_id: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          dog_id?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "dog_follows_dog_id_fkey"
-            columns: ["dog_id"]
-            isOneToOne: false
-            referencedRelation: "dogs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "dog_follows_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      dog_locations: {
-        Row: {
-          accuracy_m: number | null
-          created_at: string
-          dog_id: string
-          id: number
-          location: unknown
-          note: string | null
-          recorded_by: string
-          source: Database["public"]["Enums"]["location_source"]
-        }
-        Insert: {
-          accuracy_m?: number | null
-          created_at?: string
-          dog_id: string
-          id?: never
-          location: unknown
-          note?: string | null
-          recorded_by?: string
-          source?: Database["public"]["Enums"]["location_source"]
-        }
-        Update: {
-          accuracy_m?: number | null
-          created_at?: string
-          dog_id?: string
-          id?: never
-          location?: unknown
-          note?: string | null
-          recorded_by?: string
-          source?: Database["public"]["Enums"]["location_source"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "dog_locations_dog_id_fkey"
-            columns: ["dog_id"]
-            isOneToOne: false
-            referencedRelation: "dogs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "dog_locations_recorded_by_fkey"
-            columns: ["recorded_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      dog_photos: {
-        Row: {
-          caption: string | null
-          created_at: string
-          dog_id: string
-          height: number | null
-          id: string
-          is_primary: boolean
-          storage_path: string
-          thumb_path: string | null
-          uploaded_by: string
-          width: number | null
-        }
-        Insert: {
-          caption?: string | null
-          created_at?: string
-          dog_id: string
-          height?: number | null
-          id?: string
-          is_primary?: boolean
-          storage_path: string
-          thumb_path?: string | null
-          uploaded_by?: string
-          width?: number | null
-        }
-        Update: {
-          caption?: string | null
-          created_at?: string
-          dog_id?: string
-          height?: number | null
-          id?: string
-          is_primary?: boolean
-          storage_path?: string
-          thumb_path?: string | null
-          uploaded_by?: string
-          width?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "dog_photos_dog_id_fkey"
-            columns: ["dog_id"]
-            isOneToOne: false
-            referencedRelation: "dogs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "dog_photos_uploaded_by_fkey"
-            columns: ["uploaded_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      dogs: {
-        Row: {
-          address_text: string | null
-          city: string | null
-          color_markings: string | null
-          created_at: string
-          created_by: string
-          deleted_at: string | null
-          description: string | null
-          estimated_age_months: number | null
-          feedings_count: number
-          followers_count: number
-          gender: Database["public"]["Enums"]["dog_gender"]
-          has_active_emergency: boolean
-          has_puppies: boolean
-          health_status: Database["public"]["Enums"]["dog_health_status"]
-          id: string
-          last_fed_at: string | null
-          last_fed_by: string | null
-          last_seen_at: string
-          last_seen_by: string | null
-          location: unknown
-          medical_notes: string | null
-          name: string
-          primary_photo_path: string | null
-          primary_thumb_path: string | null
-          status: Database["public"]["Enums"]["dog_status"]
-          sterilization_status: Database["public"]["Enums"]["tri_state"]
-          sterilized_at: string | null
-          temperament: Database["public"]["Enums"]["dog_temperament"]
-          updated_at: string
-          vaccination_status: Database["public"]["Enums"]["tri_state"]
-        }
-        Insert: {
-          address_text?: string | null
-          city?: string | null
-          color_markings?: string | null
-          created_at?: string
-          created_by?: string
-          deleted_at?: string | null
-          description?: string | null
-          estimated_age_months?: number | null
-          feedings_count?: number
-          followers_count?: number
-          gender?: Database["public"]["Enums"]["dog_gender"]
-          has_active_emergency?: boolean
-          has_puppies?: boolean
-          health_status?: Database["public"]["Enums"]["dog_health_status"]
-          id?: string
-          last_fed_at?: string | null
-          last_fed_by?: string | null
-          last_seen_at?: string
-          last_seen_by?: string | null
-          location: unknown
-          medical_notes?: string | null
-          name: string
-          primary_photo_path?: string | null
-          primary_thumb_path?: string | null
-          status?: Database["public"]["Enums"]["dog_status"]
-          sterilization_status?: Database["public"]["Enums"]["tri_state"]
-          sterilized_at?: string | null
-          temperament?: Database["public"]["Enums"]["dog_temperament"]
-          updated_at?: string
-          vaccination_status?: Database["public"]["Enums"]["tri_state"]
-        }
-        Update: {
-          address_text?: string | null
-          city?: string | null
-          color_markings?: string | null
-          created_at?: string
-          created_by?: string
-          deleted_at?: string | null
-          description?: string | null
-          estimated_age_months?: number | null
-          feedings_count?: number
-          followers_count?: number
-          gender?: Database["public"]["Enums"]["dog_gender"]
-          has_active_emergency?: boolean
-          has_puppies?: boolean
-          health_status?: Database["public"]["Enums"]["dog_health_status"]
-          id?: string
-          last_fed_at?: string | null
-          last_fed_by?: string | null
-          last_seen_at?: string
-          last_seen_by?: string | null
-          location?: unknown
-          medical_notes?: string | null
-          name?: string
-          primary_photo_path?: string | null
-          primary_thumb_path?: string | null
-          status?: Database["public"]["Enums"]["dog_status"]
-          sterilization_status?: Database["public"]["Enums"]["tri_state"]
-          sterilized_at?: string | null
-          temperament?: Database["public"]["Enums"]["dog_temperament"]
-          updated_at?: string
-          vaccination_status?: Database["public"]["Enums"]["tri_state"]
-        }
-        Relationships: [
-          {
-            foreignKeyName: "dogs_created_by_fkey"
-            columns: ["created_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "dogs_last_fed_by_fkey"
-            columns: ["last_fed_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "dogs_last_seen_by_fkey"
-            columns: ["last_seen_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       emergency_reports: {
         Row: {
           address_text: string | null
+          animal_id: string | null
           created_at: string
           description: string | null
-          dog_id: string | null
           emergency_type: Database["public"]["Enums"]["emergency_type"]
           id: string
           location: unknown
@@ -442,9 +445,9 @@ export type Database = {
         }
         Insert: {
           address_text?: string | null
+          animal_id?: string | null
           created_at?: string
           description?: string | null
-          dog_id?: string | null
           emergency_type: Database["public"]["Enums"]["emergency_type"]
           id?: string
           location: unknown
@@ -459,9 +462,9 @@ export type Database = {
         }
         Update: {
           address_text?: string | null
+          animal_id?: string | null
           created_at?: string
           description?: string | null
-          dog_id?: string | null
           emergency_type?: Database["public"]["Enums"]["emergency_type"]
           id?: string
           location?: unknown
@@ -476,10 +479,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "emergency_reports_dog_id_fkey"
-            columns: ["dog_id"]
+            foreignKeyName: "emergency_reports_animal_id_fkey"
+            columns: ["animal_id"]
             isOneToOne: false
-            referencedRelation: "dogs"
+            referencedRelation: "animals"
             referencedColumns: ["id"]
           },
           {
@@ -500,8 +503,8 @@ export type Database = {
       }
       feeding_records: {
         Row: {
+          animal_id: string
           created_at: string
-          dog_id: string
           fed_at: string
           fed_by: string
           food_type: Database["public"]["Enums"]["food_type"]
@@ -512,8 +515,8 @@ export type Database = {
           photo_path: string | null
         }
         Insert: {
+          animal_id: string
           created_at?: string
-          dog_id: string
           fed_at?: string
           fed_by?: string
           food_type: Database["public"]["Enums"]["food_type"]
@@ -524,8 +527,8 @@ export type Database = {
           photo_path?: string | null
         }
         Update: {
+          animal_id?: string
           created_at?: string
-          dog_id?: string
           fed_at?: string
           fed_by?: string
           food_type?: Database["public"]["Enums"]["food_type"]
@@ -537,10 +540,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "feeding_records_dog_id_fkey"
-            columns: ["dog_id"]
+            foreignKeyName: "feeding_records_animal_id_fkey"
+            columns: ["animal_id"]
             isOneToOne: false
-            referencedRelation: "dogs"
+            referencedRelation: "animals"
             referencedColumns: ["id"]
           },
           {
@@ -554,13 +557,13 @@ export type Database = {
       }
       medical_records: {
         Row: {
+          animal_id: string
           created_at: string
           description: string | null
-          dog_id: string
           id: string
           next_followup_at: string | null
           observed_health_status:
-            | Database["public"]["Enums"]["dog_health_status"]
+            | Database["public"]["Enums"]["animal_health_status"]
             | null
           performed_at: string
           photo_paths: string[]
@@ -571,13 +574,13 @@ export type Database = {
           treated_by_text: string | null
         }
         Insert: {
+          animal_id: string
           created_at?: string
           description?: string | null
-          dog_id: string
           id?: string
           next_followup_at?: string | null
           observed_health_status?:
-            | Database["public"]["Enums"]["dog_health_status"]
+            | Database["public"]["Enums"]["animal_health_status"]
             | null
           performed_at?: string
           photo_paths?: string[]
@@ -588,13 +591,13 @@ export type Database = {
           treated_by_text?: string | null
         }
         Update: {
+          animal_id?: string
           created_at?: string
           description?: string | null
-          dog_id?: string
           id?: string
           next_followup_at?: string | null
           observed_health_status?:
-            | Database["public"]["Enums"]["dog_health_status"]
+            | Database["public"]["Enums"]["animal_health_status"]
             | null
           performed_at?: string
           photo_paths?: string[]
@@ -606,10 +609,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "medical_records_dog_id_fkey"
-            columns: ["dog_id"]
+            foreignKeyName: "medical_records_animal_id_fkey"
+            columns: ["animal_id"]
             isOneToOne: false
-            referencedRelation: "dogs"
+            referencedRelation: "animals"
             referencedColumns: ["id"]
           },
           {
@@ -667,11 +670,11 @@ export type Database = {
       }
       profiles: {
         Row: {
+          animals_added_count: number
           avatar_path: string | null
           bio: string | null
           created_at: string
           display_name: string
-          dogs_added_count: number
           feedings_count: number
           id: string
           is_anonymous: boolean
@@ -681,11 +684,11 @@ export type Database = {
           username: string | null
         }
         Insert: {
+          animals_added_count?: number
           avatar_path?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string
-          dogs_added_count?: number
           feedings_count?: number
           id: string
           is_anonymous?: boolean
@@ -695,11 +698,11 @@ export type Database = {
           username?: string | null
         }
         Update: {
+          animals_added_count?: number
           avatar_path?: string | null
           bio?: string | null
           created_at?: string
           display_name?: string
-          dogs_added_count?: number
           feedings_count?: number
           id?: string
           is_anonymous?: boolean
@@ -821,8 +824,8 @@ export type Database = {
           locale: string
           notification_radius_m: number
           notify_emergency_nearby: boolean
-          notify_followed_dogs: boolean
-          notify_new_dog_nearby: boolean
+          notify_followed_animals: boolean
+          notify_new_animal_nearby: boolean
           phone: string | null
           updated_at: string
           user_id: string
@@ -832,8 +835,8 @@ export type Database = {
           locale?: string
           notification_radius_m?: number
           notify_emergency_nearby?: boolean
-          notify_followed_dogs?: boolean
-          notify_new_dog_nearby?: boolean
+          notify_followed_animals?: boolean
+          notify_new_animal_nearby?: boolean
           phone?: string | null
           updated_at?: string
           user_id: string
@@ -843,8 +846,8 @@ export type Database = {
           locale?: string
           notification_radius_m?: number
           notify_emergency_nearby?: boolean
-          notify_followed_dogs?: boolean
-          notify_new_dog_nearby?: boolean
+          notify_followed_animals?: boolean
+          notify_new_animal_nearby?: boolean
           phone?: string | null
           updated_at?: string
           user_id?: string
@@ -863,9 +866,9 @@ export type Database = {
         Row: {
           administered_at: string
           administered_by_text: string | null
+          animal_id: string
           batch_number: string | null
           created_at: string
-          dog_id: string
           id: string
           next_due_at: string | null
           notes: string | null
@@ -877,9 +880,9 @@ export type Database = {
         Insert: {
           administered_at: string
           administered_by_text?: string | null
+          animal_id: string
           batch_number?: string | null
           created_at?: string
-          dog_id: string
           id?: string
           next_due_at?: string | null
           notes?: string | null
@@ -891,9 +894,9 @@ export type Database = {
         Update: {
           administered_at?: string
           administered_by_text?: string | null
+          animal_id?: string
           batch_number?: string | null
           created_at?: string
-          dog_id?: string
           id?: string
           next_due_at?: string | null
           notes?: string | null
@@ -904,10 +907,10 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "vaccination_records_dog_id_fkey"
-            columns: ["dog_id"]
+            foreignKeyName: "vaccination_records_animal_id_fkey"
+            columns: ["animal_id"]
             isOneToOne: false
-            referencedRelation: "dogs"
+            referencedRelation: "animals"
             referencedColumns: ["id"]
           },
           {
@@ -924,18 +927,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      admin_soft_delete_dog: { Args: { p_dog_id: string }; Returns: undefined }
-      dogs_in_bbox: {
+      admin_soft_delete_animal: {
+        Args: { p_animal_id: string }
+        Returns: undefined
+      }
+      animals_in_bbox: {
         Args: {
           p_feeding_status?: string
           p_has_emergency?: boolean
-          p_health?: Database["public"]["Enums"]["dog_health_status"][]
+          p_health?: Database["public"]["Enums"]["animal_health_status"][]
           p_limit?: number
           p_max_lat: number
           p_max_lng: number
           p_min_lat: number
           p_min_lng: number
           p_puppies?: boolean
+          p_species?: Database["public"]["Enums"]["species"]
           p_sterilized?: Database["public"]["Enums"]["tri_state"]
           p_vaccinated?: Database["public"]["Enums"]["tri_state"]
         }
@@ -948,10 +955,10 @@ export type Database = {
           feeding_status: string
           feedings_count: number
           followers_count: number
-          gender: Database["public"]["Enums"]["dog_gender"]
+          gender: Database["public"]["Enums"]["animal_gender"]
           has_active_emergency: boolean
-          has_puppies: boolean
-          health_status: Database["public"]["Enums"]["dog_health_status"]
+          has_babies: boolean
+          health_status: Database["public"]["Enums"]["animal_health_status"]
           id: string
           last_fed_at: string
           last_seen_at: string
@@ -960,23 +967,25 @@ export type Database = {
           name: string
           primary_photo_path: string
           primary_thumb_path: string
-          status: Database["public"]["Enums"]["dog_status"]
+          species: Database["public"]["Enums"]["species"]
+          status: Database["public"]["Enums"]["animal_status"]
           sterilization_status: Database["public"]["Enums"]["tri_state"]
-          temperament: Database["public"]["Enums"]["dog_temperament"]
+          temperament: Database["public"]["Enums"]["animal_temperament"]
           vaccination_status: Database["public"]["Enums"]["tri_state"]
         }[]
       }
-      dogs_within_radius: {
+      animals_within_radius: {
         Args: {
           p_feeding_status?: string
           p_has_emergency?: boolean
-          p_health?: Database["public"]["Enums"]["dog_health_status"][]
+          p_health?: Database["public"]["Enums"]["animal_health_status"][]
           p_lat: number
           p_limit?: number
           p_lng: number
           p_offset?: number
           p_puppies?: boolean
           p_radius_m?: number
+          p_species?: Database["public"]["Enums"]["species"]
           p_sterilized?: Database["public"]["Enums"]["tri_state"]
           p_vaccinated?: Database["public"]["Enums"]["tri_state"]
         }
@@ -989,10 +998,10 @@ export type Database = {
           feeding_status: string
           feedings_count: number
           followers_count: number
-          gender: Database["public"]["Enums"]["dog_gender"]
+          gender: Database["public"]["Enums"]["animal_gender"]
           has_active_emergency: boolean
-          has_puppies: boolean
-          health_status: Database["public"]["Enums"]["dog_health_status"]
+          has_babies: boolean
+          health_status: Database["public"]["Enums"]["animal_health_status"]
           id: string
           last_fed_at: string
           last_seen_at: string
@@ -1001,9 +1010,10 @@ export type Database = {
           name: string
           primary_photo_path: string
           primary_thumb_path: string
-          status: Database["public"]["Enums"]["dog_status"]
+          species: Database["public"]["Enums"]["species"]
+          status: Database["public"]["Enums"]["animal_status"]
           sterilization_status: Database["public"]["Enums"]["tri_state"]
-          temperament: Database["public"]["Enums"]["dog_temperament"]
+          temperament: Database["public"]["Enums"]["animal_temperament"]
           vaccination_status: Database["public"]["Enums"]["tri_state"]
         }[]
       }
@@ -1011,7 +1021,7 @@ export type Database = {
       fn_log_activity: {
         Args: {
           p_actor_id: string
-          p_dog_id: string
+          p_animal_id: string
           p_metadata?: Json
           p_ref_id: string
           p_ref_table: string
@@ -1022,21 +1032,21 @@ export type Database = {
       }
       fn_notify_fanout: { Args: { p_payload: Json }; Returns: undefined }
       followers_to_notify: {
-        Args: { p_dog_id: string; p_exclude?: string }
+        Args: { p_animal_id: string; p_exclude?: string }
         Returns: {
           expo_push_token: string
           user_id: string
         }[]
       }
-      get_dog_timeline: {
-        Args: { p_before_id?: number; p_dog_id: string; p_limit?: number }
+      get_animal_timeline: {
+        Args: { p_animal_id: string; p_before_id?: number; p_limit?: number }
         Returns: {
           activity_type: Database["public"]["Enums"]["activity_type"]
           actor_avatar: string
           actor_id: string
           actor_name: string
+          animal_id: string
           created_at: string
-          dog_id: string
           id: number
           metadata: Json
           summary: string
@@ -1046,20 +1056,22 @@ export type Database = {
       mark_all_notifications_read: { Args: never; Returns: undefined }
       nearby_duplicate_check: {
         Args: {
-          p_gender?: Database["public"]["Enums"]["dog_gender"]
+          p_gender?: Database["public"]["Enums"]["animal_gender"]
           p_lat: number
           p_lng: number
           p_radius_m?: number
+          p_species?: Database["public"]["Enums"]["species"]
         }
         Returns: {
           distance_m: number
-          gender: Database["public"]["Enums"]["dog_gender"]
+          gender: Database["public"]["Enums"]["animal_gender"]
           gender_match: boolean
           id: string
           last_seen_at: string
           name: string
           primary_thumb_path: string
-          temperament: Database["public"]["Enums"]["dog_temperament"]
+          species: Database["public"]["Enums"]["species"]
+          temperament: Database["public"]["Enums"]["animal_temperament"]
         }[]
       }
       users_to_notify: {
@@ -1077,8 +1089,8 @@ export type Database = {
     }
     Enums: {
       activity_type:
-        | "dog_created"
-        | "dog_updated"
+        | "animal_created"
+        | "animal_updated"
         | "fed"
         | "medical"
         | "vaccination"
@@ -1089,17 +1101,16 @@ export type Database = {
         | "location_updated"
         | "status_changed"
         | "comment"
-      device_platform: "ios" | "android" | "web"
-      dog_gender: "male" | "female" | "unknown"
-      dog_health_status:
+      animal_gender: "male" | "female" | "unknown"
+      animal_health_status:
         | "healthy"
         | "injured"
         | "sick"
         | "pregnant"
         | "nursing"
         | "recovering"
-      dog_status: "active" | "missing" | "adopted" | "deceased" | "relocated"
-      dog_temperament:
+      animal_status: "active" | "missing" | "adopted" | "deceased" | "relocated"
+      animal_temperament:
         | "friendly"
         | "shy"
         | "playful"
@@ -1107,6 +1118,7 @@ export type Database = {
         | "fearful"
         | "aggressive"
         | "unknown"
+      device_platform: "ios" | "android" | "web"
       emergency_status: "open" | "in_progress" | "resolved" | "false_alarm"
       emergency_type:
         | "injury"
@@ -1117,7 +1129,7 @@ export type Database = {
         | "missing"
         | "other"
       food_type:
-        | "dog_food"
+        | "pet_food"
         | "rice"
         | "meat"
         | "biscuits"
@@ -1141,8 +1153,8 @@ export type Database = {
         | "other"
       notification_type:
         | "emergency_nearby"
-        | "new_dog_nearby"
-        | "followed_dog_update"
+        | "new_animal_nearby"
+        | "followed_animal_update"
         | "vaccination_due"
         | "system"
       report_reason:
@@ -1150,10 +1162,11 @@ export type Database = {
         | "inaccurate"
         | "spam"
         | "abuse"
-        | "not_a_street_dog"
+        | "not_a_stray"
         | "other"
       report_status: "pending" | "reviewed" | "actioned" | "dismissed"
       severity_level: "low" | "medium" | "high" | "critical"
+      species: "dog" | "cat"
       tri_state: "yes" | "no" | "unknown"
       user_role: "user" | "volunteer" | "ngo" | "moderator" | "admin"
       vaccine_type: "rabies" | "dhpp" | "distemper" | "parvovirus" | "other"
@@ -1285,8 +1298,8 @@ export const Constants = {
   public: {
     Enums: {
       activity_type: [
-        "dog_created",
-        "dog_updated",
+        "animal_created",
+        "animal_updated",
         "fed",
         "medical",
         "vaccination",
@@ -1298,9 +1311,8 @@ export const Constants = {
         "status_changed",
         "comment",
       ],
-      device_platform: ["ios", "android", "web"],
-      dog_gender: ["male", "female", "unknown"],
-      dog_health_status: [
+      animal_gender: ["male", "female", "unknown"],
+      animal_health_status: [
         "healthy",
         "injured",
         "sick",
@@ -1308,8 +1320,8 @@ export const Constants = {
         "nursing",
         "recovering",
       ],
-      dog_status: ["active", "missing", "adopted", "deceased", "relocated"],
-      dog_temperament: [
+      animal_status: ["active", "missing", "adopted", "deceased", "relocated"],
+      animal_temperament: [
         "friendly",
         "shy",
         "playful",
@@ -1318,6 +1330,7 @@ export const Constants = {
         "aggressive",
         "unknown",
       ],
+      device_platform: ["ios", "android", "web"],
       emergency_status: ["open", "in_progress", "resolved", "false_alarm"],
       emergency_type: [
         "injury",
@@ -1329,7 +1342,7 @@ export const Constants = {
         "other",
       ],
       food_type: [
-        "dog_food",
+        "pet_food",
         "rice",
         "meat",
         "biscuits",
@@ -1356,8 +1369,8 @@ export const Constants = {
       ],
       notification_type: [
         "emergency_nearby",
-        "new_dog_nearby",
-        "followed_dog_update",
+        "new_animal_nearby",
+        "followed_animal_update",
         "vaccination_due",
         "system",
       ],
@@ -1366,11 +1379,12 @@ export const Constants = {
         "inaccurate",
         "spam",
         "abuse",
-        "not_a_street_dog",
+        "not_a_stray",
         "other",
       ],
       report_status: ["pending", "reviewed", "actioned", "dismissed"],
       severity_level: ["low", "medium", "high", "critical"],
+      species: ["dog", "cat"],
       tri_state: ["yes", "no", "unknown"],
       user_role: ["user", "volunteer", "ngo", "moderator", "admin"],
       vaccine_type: ["rabies", "dhpp", "distemper", "parvovirus", "other"],

@@ -5,24 +5,25 @@ import { useState } from 'react';
 import { Controller, useForm } from 'react-hook-form';
 import { KeyboardAvoidingView, Platform, ScrollView, Switch, Text, View } from 'react-native';
 
-import { DuplicateMatchList } from '@/components/dog/DuplicateMatchList';
+import { DuplicateMatchList } from '@/components/animal/DuplicateMatchList';
 import { EnumChips } from '@/components/forms/EnumChips';
 import { FormInput } from '@/components/forms/FormInput';
 import { PhotoField } from '@/components/forms/PhotoField';
 import { Button } from '@/components/ui/Button';
-import { useCreateDog, useDuplicateCheck } from '@/features/dogs/hooks';
+import { useCreateAnimal, useDuplicateCheck } from '@/features/animals/hooks';
 import {
-  createDogSchema,
-  dogGenderValues,
-  dogHealthValues,
-  dogTemperamentValues,
+  createAnimalSchema,
+  speciesValues,
+  animalGenderValues,
+  animalHealthValues,
+  animalTemperamentValues,
   toEstimatedAgeMonths,
   triStateValues,
-  type CreateDogValues,
-} from '@/features/dogs/schemas';
+  type CreateAnimalValues,
+} from '@/features/animals/schemas';
 import { getCurrentPosition, reverseGeocode } from '@/lib/location';
 import type { PickedImage } from '@/lib/images';
-import type { LatLng } from '@/types/domain';
+import type { LatLng, Species } from '@/types/domain';
 
 type Step = 'location' | 'duplicates' | 'details';
 
@@ -36,16 +37,21 @@ export default function NewDogScreen() {
   const [photos, setPhotos] = useState<PickedImage[]>([]);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const duplicates = useDuplicateCheck(step === 'duplicates' || step === 'details' ? point : null);
-  const createDog = useCreateDog();
+  const [species, setSpecies] = useState<Species>('dog');
+  const duplicates = useDuplicateCheck(
+    step === 'duplicates' || step === 'details' ? point : null,
+    species,
+  );
+  const createAnimal = useCreateAnimal();
 
   const {
     control,
     handleSubmit,
     formState: { isSubmitting },
-  } = useForm<CreateDogValues>({
-    resolver: zodResolver(createDogSchema),
+  } = useForm<CreateAnimalValues>({
+    resolver: zodResolver(createAnimalSchema),
     defaultValues: {
+      species: 'dog',
       name: '',
       gender: 'unknown',
       ageYears: '',
@@ -65,7 +71,7 @@ export default function NewDogScreen() {
       const position = await getCurrentPosition();
       if (!position) {
         setLocationError(
-          'Location permission is needed to place the dog on the map. Allow it in system settings, or try again.',
+          'Location permission is needed to place the animal on the map. Allow it in system settings, or try again.',
         );
         return;
       }
@@ -81,16 +87,17 @@ export default function NewDogScreen() {
     if (!point) return;
     setSubmitError(null);
     try {
-      const dogId = await createDog.mutateAsync({
+      const animalId = await createAnimal.mutateAsync({
         insert: {
           name: values.name,
+          species,
           description: values.description || null,
           gender: values.gender,
           estimated_age_months: toEstimatedAgeMonths(values),
           temperament: values.temperament,
           color_markings: values.colorMarkings || null,
           health_status: values.healthStatus,
-          has_puppies: values.hasPuppies,
+          has_babies: values.hasPuppies,
           vaccination_status: values.vaccinationStatus,
           sterilization_status: values.sterilizationStatus,
           medical_notes: values.medicalNotes || null,
@@ -99,15 +106,15 @@ export default function NewDogScreen() {
         point,
         photos,
       });
-      router.replace({ pathname: '/dog/[id]', params: { id: dogId } });
+      router.replace({ pathname: '/animal/[id]', params: { id: animalId } });
     } catch (e) {
-      setSubmitError(e instanceof Error ? e.message : 'Could not save the dog');
+      setSubmitError(e instanceof Error ? e.message : 'Could not save the animal');
     }
   });
 
   return (
     <>
-      <Stack.Screen options={{ title: 'Add a dog' }} />
+      <Stack.Screen options={{ title: 'Add a stray' }} />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1 bg-stone-50 dark:bg-stone-950"
@@ -118,11 +125,19 @@ export default function NewDogScreen() {
               <View className="items-center gap-2">
                 <Ionicons name="location" size={40} color="#EA580C" />
                 <Text className="text-xl font-bold text-stone-900 dark:text-stone-100">
-                  Where is the dog?
+                  Where is the animal?
                 </Text>
+              </View>
+              <EnumChips
+                label="What did you spot?"
+                options={speciesValues}
+                value={species}
+                onChange={setSpecies}
+              />
+              <View className="items-center gap-2">
                 <Text className="text-center text-stone-500 dark:text-stone-400">
-                  Stand near the dog and use your location — that&apos;s where it will appear on the
-                  map for feeders nearby.
+                  Stand near the animal and use your location — that&apos;s where it will appear on
+                  the map for feeders nearby.
                 </Text>
               </View>
               {locationError ? (
@@ -138,31 +153,31 @@ export default function NewDogScreen() {
             <View className="gap-4">
               <View className="gap-1">
                 <Text className="text-xl font-bold text-stone-900 dark:text-stone-100">
-                  Is it one of these dogs?
+                  Is it one of these?
                 </Text>
                 <Text className="text-stone-500 dark:text-stone-400">
                   {addressText ? `Near ${addressText}. ` : ''}
-                  These dogs were already added close by — tap one if it&apos;s a match.
+                  These strays were already added close by — tap one if it&apos;s a match.
                 </Text>
               </View>
 
               {duplicates.isLoading ? (
-                <Text className="text-stone-500 dark:text-stone-400">Checking nearby dogs…</Text>
+                <Text className="text-stone-500 dark:text-stone-400">Checking nearby strays…</Text>
               ) : duplicates.data && duplicates.data.length > 0 ? (
                 <DuplicateMatchList
                   matches={duplicates.data}
-                  onSelectExisting={(dogId) =>
-                    router.replace({ pathname: '/dog/[id]', params: { id: dogId } })
+                  onSelectExisting={(animalId) =>
+                    router.replace({ pathname: '/animal/[id]', params: { id: animalId } })
                   }
                 />
               ) : (
                 <Text className="text-stone-500 dark:text-stone-400">
-                  No dogs recorded nearby — looks like a new friend.
+                  No strays recorded nearby — looks like a new friend.
                 </Text>
               )}
 
               <Button size="lg" onPress={() => setStep('details')}>
-                {duplicates.data && duplicates.data.length > 0 ? "No, it's a new dog" : 'Continue'}
+                {duplicates.data && duplicates.data.length > 0 ? "No, it's a new animal" : 'Continue'}
               </Button>
             </View>
           ) : null}
@@ -189,7 +204,7 @@ export default function NewDogScreen() {
                 control={control}
                 name="gender"
                 render={({ field }) => (
-                  <EnumChips label="Gender" options={dogGenderValues} value={field.value} onChange={field.onChange} />
+                  <EnumChips label="Gender" options={animalGenderValues} value={field.value} onChange={field.onChange} />
                 )}
               />
 
@@ -220,7 +235,7 @@ export default function NewDogScreen() {
                 render={({ field }) => (
                   <EnumChips
                     label="Temperament"
-                    options={dogTemperamentValues}
+                    options={animalTemperamentValues}
                     value={field.value}
                     onChange={field.onChange}
                   />
@@ -238,7 +253,7 @@ export default function NewDogScreen() {
                 render={({ field }) => (
                   <EnumChips
                     label="Health right now"
-                    options={dogHealthValues}
+                    options={animalHealthValues}
                     value={field.value}
                     onChange={field.onChange}
                   />
@@ -251,7 +266,7 @@ export default function NewDogScreen() {
                 render={({ field }) => (
                   <View className="flex-row items-center justify-between rounded-xl bg-white px-4 py-3 dark:bg-stone-900">
                     <Text className="font-medium text-stone-700 dark:text-stone-300">
-                      Puppies present
+                      Puppies / kittens present
                     </Text>
                     <Switch value={field.value} onValueChange={field.onChange} />
                   </View>
@@ -293,7 +308,7 @@ export default function NewDogScreen() {
               ) : null}
 
               <Button size="lg" loading={isSubmitting} onPress={onSubmit}>
-                Add dog
+                Add animal
               </Button>
             </View>
           ) : null}

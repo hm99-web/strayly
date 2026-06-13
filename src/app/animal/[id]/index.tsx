@@ -4,14 +4,14 @@ import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useState } from 'react';
 import { FlatList, Pressable, Text, View } from 'react-native';
 
-import { DogStatusBadges } from '@/components/dog/DogStatusBadges';
-import { FeedingStatusDot } from '@/components/dog/FeedingStatusDot';
-import { PhotoCarousel } from '@/components/dog/PhotoCarousel';
-import { TimelineItem } from '@/components/dog/TimelineItem';
+import { AnimalStatusBadges } from '@/components/animal/AnimalStatusBadges';
+import { FeedingStatusDot } from '@/components/animal/FeedingStatusDot';
+import { PhotoCarousel } from '@/components/animal/PhotoCarousel';
+import { TimelineItem } from '@/components/animal/TimelineItem';
 import { Screen } from '@/components/ui/Screen';
 import { keys } from '@/constants/queryKeys';
-import { reportSighting } from '@/features/dogs/api';
-import { useAddDogPhoto, useDog, useDogPhotos, useDogTimeline } from '@/features/dogs/hooks';
+import { reportSighting } from '@/features/animals/api';
+import { useAddAnimalPhoto, useDog, useAnimalPhotos, useAnimalTimeline } from '@/features/animals/hooks';
 import { useMyFollows, useToggleFollow } from '@/features/follows/hooks';
 import { useRequireAuth } from '@/hooks/useRequireAuth';
 import { formatAge, timeAgo } from '@/lib/format';
@@ -65,22 +65,22 @@ export default function DogDetailScreen() {
   const router = useRouter();
   const requireAuth = useRequireAuth();
   const queryClient = useQueryClient();
-  const { data: dog, isLoading, error } = useDog(id);
-  const { data: photos } = useDogPhotos(id);
-  const timeline = useDogTimeline(id);
-  const addPhoto = useAddDogPhoto(id);
+  const { data: animal, isLoading, error } = useDog(id);
+  const { data: photos } = useAnimalPhotos(id);
+  const timeline = useAnimalTimeline(id);
+  const addPhoto = useAddAnimalPhoto(id);
   const { data: follows } = useMyFollows();
   const toggleFollow = useToggleFollow(id);
   const isFollowing = follows?.has(id) ?? false;
   const [sightingState, setSightingState] = useState<'idle' | 'saving' | 'done' | 'failed'>('idle');
 
-  if (isLoading || error || !dog) {
+  if (isLoading || error || !animal) {
     return (
       <Screen edges={['left', 'right']}>
         <Stack.Screen options={{ title: isLoading ? '…' : 'Not found' }} />
         <View className="flex-1 items-center justify-center p-6">
           <Text className="text-center text-stone-500 dark:text-stone-400">
-            {isLoading ? 'Loading…' : 'This dog could not be loaded.'}
+            {isLoading ? 'Loading…' : 'This animal could not be loaded.'}
           </Text>
         </View>
       </Screen>
@@ -98,8 +98,8 @@ export default function DogDetailScreen() {
         return;
       }
       await reportSighting(id, position);
-      void queryClient.invalidateQueries({ queryKey: keys.dogs.detail(id) });
-      void queryClient.invalidateQueries({ queryKey: keys.dogs.timeline(id) });
+      void queryClient.invalidateQueries({ queryKey: keys.animals.detail(id) });
+      void queryClient.invalidateQueries({ queryKey: keys.animals.timeline(id) });
       setSightingState('done');
     } catch {
       setSightingState('failed');
@@ -119,7 +119,7 @@ export default function DogDetailScreen() {
         <PhotoCarousel photos={photos ?? []} />
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel={isFollowing ? `Unfollow ${dog.name}` : `Follow ${dog.name}`}
+          accessibilityLabel={isFollowing ? `Unfollow ${animal.name}` : `Follow ${animal.name}`}
           accessibilityState={{ selected: isFollowing }}
           onPress={() => requireAuth(() => toggleFollow.mutate(!isFollowing))}
           className="absolute right-3 top-3 h-10 w-10 items-center justify-center rounded-full bg-black/50"
@@ -144,21 +144,22 @@ export default function DogDetailScreen() {
       <View className="gap-2 px-4">
         <View className="flex-row items-start justify-between">
           <Text className="flex-1 text-2xl font-bold text-stone-900 dark:text-stone-100">
-            {dog.name}
+            {animal.name}
           </Text>
           <Text className="pt-1 text-sm capitalize text-stone-500 dark:text-stone-400">
-            {dog.temperament !== 'unknown' ? dog.temperament : ''}
+            {animal.temperament !== 'unknown' ? animal.temperament : ''}
           </Text>
         </View>
         <Text className="capitalize text-stone-500 dark:text-stone-400">
-          {dog.gender !== 'unknown' ? `${dog.gender} · ` : ''}
-          {formatAge(dog.estimated_age_months)}
+          {animal.species}
+          {animal.gender !== 'unknown' ? ` · ${animal.gender}` : ''} ·{' '}
+          {formatAge(animal.estimated_age_months)}
         </Text>
-        <DogStatusBadges dog={dog} />
+        <AnimalStatusBadges animal={animal} />
         <View className="mt-1 rounded-xl bg-white px-3 py-2.5 dark:bg-stone-900">
-          <FeedingStatusDot lastFedAt={dog.last_fed_at} />
+          <FeedingStatusDot lastFedAt={animal.last_fed_at} />
           <Text className="mt-0.5 text-xs text-stone-400">
-            Fed {dog.feedings_count} {dog.feedings_count === 1 ? 'time' : 'times'} in total
+            Fed {animal.feedings_count} {animal.feedings_count === 1 ? 'time' : 'times'} in total
           </Text>
         </View>
       </View>
@@ -168,34 +169,34 @@ export default function DogDetailScreen() {
           icon="restaurant"
           label="Feed"
           highlight
-          onPress={() => requireAuth(() => router.push({ pathname: '/dog/[id]/feed', params: { id } }))}
+          onPress={() => requireAuth(() => router.push({ pathname: '/animal/[id]/feed', params: { id } }))}
         />
         <ActionButton
           icon="medkit"
           label="Medical"
-          onPress={() => requireAuth(() => router.push({ pathname: '/dog/[id]/medical', params: { id } }))}
+          onPress={() => requireAuth(() => router.push({ pathname: '/animal/[id]/medical', params: { id } }))}
         />
         <ActionButton
           icon="shield-checkmark"
           label="Vaccine"
-          onPress={() => requireAuth(() => router.push({ pathname: '/dog/[id]/vaccinate', params: { id } }))}
+          onPress={() => requireAuth(() => router.push({ pathname: '/animal/[id]/vaccinate', params: { id } }))}
         />
         <ActionButton
           icon="alert-circle"
           label="Emergency"
-          onPress={() => requireAuth(() => router.push({ pathname: '/dog/[id]/report', params: { id } }))}
+          onPress={() => requireAuth(() => router.push({ pathname: '/animal/[id]/report', params: { id } }))}
         />
         <ActionButton
           icon="create-outline"
           label="Edit"
-          onPress={() => requireAuth(() => router.push({ pathname: '/dog/[id]/edit', params: { id } }))}
+          onPress={() => requireAuth(() => router.push({ pathname: '/animal/[id]/edit', params: { id } }))}
         />
       </View>
 
       <View className="px-4">
         <Pressable
           accessibilityRole="button"
-          accessibilityLabel="I saw this dog here"
+          accessibilityLabel="I saw them here"
           disabled={sightingState === 'saving'}
           onPress={() => requireAuth(() => void onSpottedHere())}
           className="flex-row items-center justify-center gap-2 rounded-xl border border-stone-300 py-2.5 active:opacity-70 dark:border-stone-700"
@@ -208,34 +209,34 @@ export default function DogDetailScreen() {
                 ? 'Sighting recorded ✓'
                 : sightingState === 'failed'
                   ? 'Could not record — location needed'
-                  : 'I saw this dog here'}
+                  : 'I saw them here'}
           </Text>
         </Pressable>
       </View>
 
-      {dog.description ? (
+      {animal.description ? (
         <Section title="About">
-          <Text className="leading-5 text-stone-700 dark:text-stone-300">{dog.description}</Text>
+          <Text className="leading-5 text-stone-700 dark:text-stone-300">{animal.description}</Text>
         </Section>
       ) : null}
 
-      {dog.color_markings ? (
+      {animal.color_markings ? (
         <Section title="Color & markings">
-          <Text className="text-stone-700 dark:text-stone-300">{dog.color_markings}</Text>
+          <Text className="text-stone-700 dark:text-stone-300">{animal.color_markings}</Text>
         </Section>
       ) : null}
 
       <Section title="Last seen">
         <Text className="text-stone-700 dark:text-stone-300">
-          {timeAgo(dog.last_seen_at)}
-          {dog.address_text ? ` · ${dog.address_text}` : ''}
-          {dog.city ? `, ${dog.city}` : ''}
+          {timeAgo(animal.last_seen_at)}
+          {animal.address_text ? ` · ${animal.address_text}` : ''}
+          {animal.city ? `, ${animal.city}` : ''}
         </Text>
       </Section>
 
-      {dog.medical_notes ? (
+      {animal.medical_notes ? (
         <Section title="Medical notes">
-          <Text className="leading-5 text-stone-700 dark:text-stone-300">{dog.medical_notes}</Text>
+          <Text className="leading-5 text-stone-700 dark:text-stone-300">{animal.medical_notes}</Text>
         </Section>
       ) : null}
 
@@ -249,7 +250,7 @@ export default function DogDetailScreen() {
 
   return (
     <Screen edges={['left', 'right']}>
-      <Stack.Screen options={{ title: dog.name }} />
+      <Stack.Screen options={{ title: animal.name }} />
       <FlatList
         data={timelineItems}
         keyExtractor={(item) => String(item.id)}

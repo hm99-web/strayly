@@ -3,16 +3,16 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Pressable, Text, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { DogCard } from '@/components/dog/DogCard';
-import { FilterSheet } from '@/components/dog/FilterSheet';
+import { AnimalCard } from '@/components/animal/AnimalCard';
+import { FilterSheet } from '@/components/animal/FilterSheet';
 import { AddressSearchModal } from '@/components/map/AddressSearchModal';
-import { DogMap } from '@/components/map/DogMap';
-import { DEFAULT_DELTA, type MapRegion } from '@/components/map/DogMap.types';
+import { AnimalMap } from '@/components/map/AnimalMap';
+import { DEFAULT_DELTA, type MapRegion } from '@/components/map/AnimalMap.types';
 import { updateMySettings } from '@/features/profile/api';
-import { useDogsInBbox } from '@/features/dogs/hooks';
+import { useAnimalsInBbox } from '@/features/animals/hooks';
 import { useAuth } from '@/hooks/useAuth';
 import { useUserLocation } from '@/hooks/useUserLocation';
-import { getMarkerColor } from '@/lib/dogStatus';
+import { getMarkerColor } from '@/lib/animalStatus';
 import { countActiveFilters, useMapStore } from '@/stores/mapStore';
 import { toWkt } from '@/types/domain';
 
@@ -36,26 +36,26 @@ export default function MapTab() {
   const [centerKey, setCenterKey] = useState(0);
   const lastCenterRef = useRef(searchCenter);
 
-  const [selectedDogId, setSelectedDogId] = useState<string | null>(null);
+  const [selectedAnimalId, setSelectedAnimalId] = useState<string | null>(null);
   const [searchOpen, setSearchOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
-  const { data: dogs } = useDogsInBbox(queryRegion, filters);
+  const { data: animals } = useAnimalsInBbox(queryRegion, filters);
 
   const points = useMemo(
     () =>
-      (dogs ?? []).map((dog) => ({
-        id: dog.id,
-        latitude: dog.lat,
-        longitude: dog.lng,
-        color: getMarkerColor(dog),
+      (animals ?? []).map((animal) => ({
+        id: animal.id,
+        latitude: animal.lat,
+        longitude: animal.lng,
+        color: getMarkerColor(animal),
       })),
-    [dogs],
+    [animals],
   );
 
-  const selectedDog = useMemo(
-    () => (selectedDogId ? (dogs ?? []).find((d) => d.id === selectedDogId) : undefined),
-    [dogs, selectedDogId],
+  const selectedAnimal = useMemo(
+    () => (selectedAnimalId ? (animals ?? []).find((d) => d.id === selectedAnimalId) : undefined),
+    [animals, selectedAnimalId],
   );
 
   // Camera follows the shared search center (address search / near-me).
@@ -87,11 +87,11 @@ export default function MapTab() {
 
   return (
     <View className="flex-1">
-      <DogMap
+      <AnimalMap
         points={points}
         initialRegion={initialRegion}
         onRegionChange={onRegionChange}
-        onPointPress={(dogId) => setSelectedDogId(dogId)}
+        onPointPress={(animalId) => setSelectedAnimalId(animalId)}
         showsUserLocation
         center={searchCenter}
         centerKey={centerKey}
@@ -134,20 +134,20 @@ export default function MapTab() {
         accessibilityLabel="Go to my location"
         onPress={() => void onLocate()}
         className="absolute right-4 h-12 w-12 items-center justify-center rounded-full bg-white shadow-sm active:opacity-80 dark:bg-stone-900"
-        style={{ bottom: (selectedDog ? 140 : 24) + insets.bottom }}
+        style={{ bottom: (selectedAnimal ? 140 : 24) + insets.bottom }}
       >
         <Ionicons name={locating ? 'navigate' : 'locate'} size={20} color="#EA580C" />
       </Pressable>
 
       {/* Marker preview card */}
-      {selectedDog ? (
+      {selectedAnimal ? (
         <View className="absolute left-3 right-3" style={{ bottom: 12 + insets.bottom }}>
           <View className="shadow-lg">
-            <DogCard dog={selectedDog} />
+            <AnimalCard animal={selectedAnimal} />
             <Pressable
               accessibilityRole="button"
               accessibilityLabel="Close preview"
-              onPress={() => setSelectedDogId(null)}
+              onPress={() => setSelectedAnimalId(null)}
               className="absolute right-2 top-2 h-7 w-7 items-center justify-center rounded-full bg-stone-100 dark:bg-stone-800"
             >
               <Ionicons name="close" size={16} color="#78716C" />

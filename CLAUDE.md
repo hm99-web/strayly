@@ -1,6 +1,6 @@
-# Paw Guardians — agent notes
+# Strayly — agent notes
 
-Cross-platform (iOS/Android/Web) street-dog care app. Expo SDK 56 + Supabase. Read README.md for
+Cross-platform (iOS/Android/Web) stray dog & cat care app. Expo SDK 56 + Supabase. Read README.md for
 setup; this file covers conventions that aren't obvious from the code.
 
 ## Commands
@@ -13,14 +13,14 @@ setup; this file covers conventions that aren't obvious from the code.
 
 ## Hard rules
 
-- Dog status colors/badges: ONLY via `src/lib/dogStatus.ts` + `src/constants/palette.js`
+- Animal status colors/badges: ONLY via `src/lib/animalStatus.ts` + `src/constants/palette.js`
   (palette.js is CJS so tailwind.config.js shares it — don't convert to TS).
 - Feeding thresholds live in exactly two files: `src/constants/feeding.ts` and
   `fn_feeding_status()` in `supabase/migrations/*_rpcs.sql`. Change both or neither.
 - Never import react-native-maps / @vis.gl/react-google-maps outside `src/components/map/`
-  (ESLint enforces). Map features go through the `DogMapProps` contract.
+  (ESLint enforces). Map features go through the `AnimalMapProps` contract.
 - TanStack query keys only from `src/constants/queryKeys.ts`.
-- Denormalized `dogs` columns (last_fed_at, counters, location, has_active_emergency…) are
+- Denormalized `animals` columns (last_fed_at, counters, location, has_active_emergency…) are
   trigger-owned — never write them from the client; column grants will reject it anyway.
 - Keyset pagination only (no offset beyond the capped radius RPC, no count(*) on
   activity_logs/feeding_records).

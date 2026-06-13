@@ -3,9 +3,9 @@ import { Image } from 'expo-image';
 import { FlatList, useWindowDimensions, View } from 'react-native';
 
 import { publicUrl } from '@/lib/supabase';
-import type { DogPhoto } from '@/types/domain';
+import type { AnimalPhoto } from '@/types/domain';
 
-export function PhotoCarousel({ photos }: { photos: DogPhoto[] }) {
+export function PhotoCarousel({ photos }: { photos: AnimalPhoto[] }) {
   const { width } = useWindowDimensions();
   const itemWidth = Math.min(width, 720);
 
@@ -30,12 +30,12 @@ export function PhotoCarousel({ photos }: { photos: DogPhoto[] }) {
       style={{ flexGrow: 0 }}
       renderItem={({ item }) => (
         <Image
-          source={{ uri: publicUrl('dog-media', item.storage_path) }}
+          source={{ uri: publicUrl('animal-media', item.storage_path) }}
           style={{ width: itemWidth, height: 280 }}
           contentFit="cover"
           cachePolicy="disk"
           transition={200}
-          accessibilityLabel={item.caption ?? 'Dog photo'}
+          accessibilityLabel={item.caption ?? 'Stray photo'}
         />
       )}
     />

@@ -3,10 +3,10 @@ import Supercluster from 'supercluster';
 
 import { palette } from '@/constants/palette';
 
-import { regionToBbox, regionToZoom, type DogMapPoint, type DogPoint, type MapRegion } from './DogMap.types';
+import { regionToBbox, regionToZoom, type AnimalMapPoint, type AnimalPoint, type MapRegion } from './AnimalMap.types';
 
 interface DogProperties {
-  dogId: string;
+  animalId: string;
   color: string;
 }
 
@@ -14,14 +14,14 @@ interface DogProperties {
  * Shared client-side clustering (identical behaviour on native and web).
  * The index rebuilds only when the point set changes.
  */
-export function useClusters(points: DogPoint[], region: MapRegion): DogMapPoint[] {
+export function useClusters(points: AnimalPoint[], region: MapRegion): AnimalMapPoint[] {
   const index = useMemo(() => {
     const supercluster = new Supercluster<DogProperties>({ radius: 56, maxZoom: 17 });
     supercluster.load(
       points.map((point) => ({
         type: 'Feature' as const,
         geometry: { type: 'Point' as const, coordinates: [point.longitude, point.latitude] },
-        properties: { dogId: point.id, color: point.color },
+        properties: { animalId: point.id, color: point.color },
       })),
     );
     return supercluster;
@@ -33,7 +33,7 @@ export function useClusters(points: DogPoint[], region: MapRegion): DogMapPoint[
       [bbox.minLng, bbox.minLat, bbox.maxLng, bbox.maxLat],
       Math.min(regionToZoom(region), 20),
     );
-    return clusters.map((feature): DogMapPoint => {
+    return clusters.map((feature): AnimalMapPoint => {
       const [longitude, latitude] = feature.geometry.coordinates;
       if ('cluster' in feature.properties && feature.properties.cluster) {
         return {
@@ -48,7 +48,7 @@ export function useClusters(points: DogPoint[], region: MapRegion): DogMapPoint[
       }
       const props = feature.properties as DogProperties;
       return {
-        id: props.dogId,
+        id: props.animalId,
         latitude,
         longitude,
         color: props.color,
@@ -60,8 +60,8 @@ export function useClusters(points: DogPoint[], region: MapRegion): DogMapPoint[
 
 /** Region that zooms into a cluster's children (shared tap behaviour). */
 export function clusterExpansionRegion(
-  points: DogPoint[],
-  point: DogMapPoint,
+  points: AnimalPoint[],
+  point: AnimalMapPoint,
   region: MapRegion,
 ): MapRegion {
   // Halve deltas relative to current view, centered on the cluster.

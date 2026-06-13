@@ -72,7 +72,7 @@ export default function SignInScreen() {
             Welcome back
           </Text>
           <Text className="text-center text-stone-500 dark:text-stone-400">
-            Sign in to feed, report and care for street dogs.
+            Sign in to feed, report and care for strays.
           </Text>
         </View>
 

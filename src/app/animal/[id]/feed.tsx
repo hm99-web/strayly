@@ -21,7 +21,7 @@ export default function FeedDogScreen() {
 
   const { control, handleSubmit, watch, formState } = useForm<MarkFedValues>({
     resolver: zodResolver(markFedSchema),
-    defaultValues: { foodType: 'dog_food', foodTypeOther: '', notes: '' },
+    defaultValues: { foodType: 'pet_food', foodTypeOther: '', notes: '' },
   });
 
   const onSubmit = handleSubmit(async (values) => {

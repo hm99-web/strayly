@@ -43,7 +43,7 @@ if (Platform.OS !== 'web') {
 }
 
 /** Public URL for a storage object path; '' for null paths. */
-export function publicUrl(bucket: 'avatars' | 'dog-media', path: string | null | undefined): string {
+export function publicUrl(bucket: 'avatars' | 'animal-media', path: string | null | undefined): string {
   if (!path) return '';
   return supabase.storage.from(bucket).getPublicUrl(path).data.publicUrl;
 }

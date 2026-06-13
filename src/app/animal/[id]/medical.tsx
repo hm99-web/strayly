@@ -8,7 +8,7 @@ import { EnumChips } from '@/components/forms/EnumChips';
 import { FormInput } from '@/components/forms/FormInput';
 import { PhotoField } from '@/components/forms/PhotoField';
 import { Button } from '@/components/ui/Button';
-import { dogHealthValues } from '@/features/dogs/schemas';
+import { animalHealthValues } from '@/features/animals/schemas';
 import { useAddMedicalRecord } from '@/features/medical/hooks';
 import {
   addMedicalSchema,
@@ -77,8 +77,8 @@ export default function MedicalRecordScreen() {
             name="observedHealthStatus"
             render={({ field }) => (
               <EnumChips
-                label="Dog's condition now (optional)"
-                options={dogHealthValues}
+                label="Animal's condition now (optional)"
+                options={animalHealthValues}
                 value={field.value}
                 onChange={field.onChange}
               />

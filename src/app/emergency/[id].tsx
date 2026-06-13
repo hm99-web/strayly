@@ -92,7 +92,7 @@ export default function EmergencyDetailScreen() {
             {report.photo_paths.map((path) => (
               <Image
                 key={path}
-                source={{ uri: publicUrl('dog-media', path) }}
+                source={{ uri: publicUrl('animal-media', path) }}
                 style={{ width: 160, height: 120, borderRadius: 12 }}
                 contentFit="cover"
                 cachePolicy="disk"
@@ -101,9 +101,9 @@ export default function EmergencyDetailScreen() {
           </ScrollView>
         ) : null}
 
-        {report.dog_id ? (
-          <Link href={{ pathname: '/dog/[id]', params: { id: report.dog_id } }} asChild>
-            <Button variant="outline">View dog profile</Button>
+        {report.animal_id ? (
+          <Link href={{ pathname: '/animal/[id]', params: { id: report.animal_id } }} asChild>
+            <Button variant="outline">View profile</Button>
           </Link>
         ) : null}
 

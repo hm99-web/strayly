@@ -23,18 +23,19 @@ export const FEEDING_STATUS_LABEL: Record<FeedingStatus, string> = {
   red: 'Needs food',
 };
 
-/** Minimal shape needed to derive a dog's display color — matches `dogs` row columns. */
-export interface DogStatusLike {
+/** Minimal shape needed to derive a animal's display color — matches `dogs` row columns. */
+export interface AnimalStatusLike {
   status: string;
   health_status: string;
   has_active_emergency: boolean;
   last_fed_at: string | null;
 }
 
-export interface DogBadgeLike extends DogStatusLike {
+export interface AnimalBadgeLike extends AnimalStatusLike {
+  species: string;
   vaccination_status: string;
   sterilization_status: string;
-  has_puppies: boolean;
+  has_babies: boolean;
 }
 
 export interface BadgeDescriptor {
@@ -45,31 +46,35 @@ export interface BadgeDescriptor {
 }
 
 /** Single source of badge derivation for cards, markers callouts and detail. */
-export function getBadges(dog: DogBadgeLike): BadgeDescriptor[] {
+export function getBadges(animal: AnimalBadgeLike): BadgeDescriptor[] {
   const badges: BadgeDescriptor[] = [];
-  if (dog.has_active_emergency) {
+  if (animal.has_active_emergency) {
     badges.push({ key: 'emergency', label: 'Emergency', color: palette.status.emergency });
   }
-  if (dog.status === 'missing') {
+  if (animal.status === 'missing') {
     badges.push({ key: 'missing', label: 'Missing', color: palette.status.missing });
   }
-  if (dog.health_status === 'injured' || dog.health_status === 'sick') {
+  if (animal.health_status === 'injured' || animal.health_status === 'sick') {
     badges.push({
-      key: dog.health_status,
-      label: dog.health_status === 'injured' ? 'Injured' : 'Sick',
+      key: animal.health_status,
+      label: animal.health_status === 'injured' ? 'Injured' : 'Sick',
       color: palette.status.injured,
     });
   }
-  if (dog.health_status === 'pregnant') {
+  if (animal.health_status === 'pregnant') {
     badges.push({ key: 'pregnant', label: 'Pregnant', color: palette.badge.pregnant });
   }
-  if (dog.has_puppies || dog.health_status === 'nursing') {
-    badges.push({ key: 'puppies', label: 'Puppies', color: palette.badge.puppies });
+  if (animal.has_babies || animal.health_status === 'nursing') {
+    badges.push({
+      key: 'babies',
+      label: animal.species === 'cat' ? 'Kittens' : 'Puppies',
+      color: palette.badge.puppies,
+    });
   }
-  if (dog.vaccination_status === 'yes') {
+  if (animal.vaccination_status === 'yes') {
     badges.push({ key: 'vaccinated', label: 'Vaccinated', color: palette.badge.vaccinated });
   }
-  if (dog.sterilization_status === 'yes') {
+  if (animal.sterilization_status === 'yes') {
     badges.push({ key: 'sterilized', label: 'Sterilized', color: palette.badge.sterilized });
   }
   return badges;
@@ -79,9 +84,9 @@ export function getBadges(dog: DogBadgeLike): BadgeDescriptor[] {
  * Single source of marker/list color priority:
  * emergency > injured/sick > missing > feeding staleness.
  */
-export function getMarkerColor(dog: DogStatusLike, now = Date.now()): string {
-  if (dog.has_active_emergency) return palette.status.emergency;
-  if (dog.health_status === 'injured' || dog.health_status === 'sick') return palette.status.injured;
-  if (dog.status === 'missing') return palette.status.missing;
-  return FEEDING_STATUS_COLOR[getFeedingStatus(dog.last_fed_at, now)];
+export function getMarkerColor(animal: AnimalStatusLike, now = Date.now()): string {
+  if (animal.has_active_emergency) return palette.status.emergency;
+  if (animal.health_status === 'injured' || animal.health_status === 'sick') return palette.status.injured;
+  if (animal.status === 'missing') return palette.status.missing;
+  return FEEDING_STATUS_COLOR[getFeedingStatus(animal.last_fed_at, now)];
 }

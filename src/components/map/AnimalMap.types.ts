@@ -8,8 +8,8 @@ export interface MapRegion {
   longitudeDelta: number;
 }
 
-/** A renderable point: an individual dog or a cluster of them. */
-export interface DogMapPoint {
+/** A renderable point: an individual animal or a cluster of them. */
+export interface AnimalMapPoint {
   id: string;
   latitude: number;
   longitude: number;
@@ -22,8 +22,8 @@ export interface DogMapPoint {
   clusterId?: number;
 }
 
-/** Raw input point (one dog). */
-export interface DogPoint {
+/** Raw input point (one animal). */
+export interface AnimalPoint {
   id: string;
   latitude: number;
   longitude: number;
@@ -32,14 +32,14 @@ export interface DogPoint {
 
 /**
  * The ONLY map contract in the app. react-native-maps never leaks outside
- * DogMap.tsx; Google Maps JS never leaks outside DogMap.web.tsx.
+ * AnimalMap.tsx; Google Maps JS never leaks outside AnimalMap.web.tsx.
  */
-export interface DogMapProps {
-  points: DogPoint[];
+export interface AnimalMapProps {
+  points: AnimalPoint[];
   initialRegion: MapRegion;
   /** Fires (already debounced by the implementation) when the viewport settles. */
   onRegionChange?: (region: MapRegion) => void;
-  onPointPress?: (dogId: string) => void;
+  onPointPress?: (animalId: string) => void;
   onLongPress?: (coordinate: LatLng) => void;
   showsUserLocation?: boolean;
   /** Imperative camera move: changes whenever centerKey changes. */

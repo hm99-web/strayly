@@ -5,7 +5,7 @@ import { Text, View } from 'react-native';
 
 import { GOOGLE_MAPS_WEB_KEY } from '@/constants/config';
 
-import { regionToZoom, type DogMapProps, type MapRegion } from './DogMap.types';
+import { regionToZoom, type AnimalMapProps, type MapRegion } from './AnimalMap.types';
 import { clusterExpansionRegion, useClusters } from './useClusters';
 
 // google.maps.SymbolPath.CIRCLE — numeric constant avoids touching the global
@@ -33,7 +33,7 @@ function MapContent({
   onPointPress,
   center,
   centerKey,
-}: DogMapProps) {
+}: AnimalMapProps) {
   const map = useMap();
   const [region, setRegion] = useState<MapRegion>(initialRegion);
   const clusters = useClusters(points, region);
@@ -53,7 +53,7 @@ function MapContent({
           <Marker
             key={point.id}
             position={{ lat: point.latitude, lng: point.longitude }}
-            title={`${point.count} dogs`}
+            title={`${point.count} strays`}
             icon={{
               path: SYMBOL_CIRCLE,
               scale: 18,
@@ -103,7 +103,7 @@ function RegionWatcher({ onRegion }: { onRegion: (region: MapRegion) => void }) 
   return null;
 }
 
-export function DogMap(props: DogMapProps) {
+export function AnimalMap(props: AnimalMapProps) {
   if (!GOOGLE_MAPS_WEB_KEY) {
     return (
       <View className="flex-1 items-center justify-center gap-2 bg-stone-100 p-8 dark:bg-stone-900">

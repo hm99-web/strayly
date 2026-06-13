@@ -18,24 +18,25 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Radius discovery for the "near me" list. Distance-ordered, capped at 200.
 -- ---------------------------------------------------------------------------
-create or replace function public.dogs_within_radius(
+create or replace function public.animals_within_radius(
   p_lat double precision,
   p_lng double precision,
   p_radius_m integer default 2000,
+  p_species public.species default null,
   p_feeding_status text default null,
   p_vaccinated public.tri_state default null,
   p_sterilized public.tri_state default null,
-  p_health public.dog_health_status[] default null,
+  p_health public.animal_health_status[] default null,
   p_has_emergency boolean default null,
   p_puppies boolean default null,
   p_limit integer default 100,
   p_offset integer default 0
 )
 returns table (
-  id uuid, name text, gender public.dog_gender, estimated_age_months integer,
-  temperament public.dog_temperament, status public.dog_status,
-  health_status public.dog_health_status, has_active_emergency boolean,
-  has_puppies boolean, vaccination_status public.tri_state,
+  id uuid, name text, species public.species, gender public.animal_gender, estimated_age_months integer,
+  temperament public.animal_temperament, status public.animal_status,
+  health_status public.animal_health_status, has_active_emergency boolean,
+  has_babies boolean, vaccination_status public.tri_state,
   sterilization_status public.tri_state, last_fed_at timestamptz,
   feedings_count integer, followers_count integer,
   primary_photo_path text, primary_thumb_path text,
@@ -48,24 +49,25 @@ stable
 set search_path = public, extensions
 as $$
   select
-    d.id, d.name, d.gender, d.estimated_age_months, d.temperament, d.status,
-    d.health_status, d.has_active_emergency, d.has_puppies,
+    d.id, d.name, d.species, d.gender, d.estimated_age_months, d.temperament, d.status,
+    d.health_status, d.has_active_emergency, d.has_babies,
     d.vaccination_status, d.sterilization_status, d.last_fed_at,
     d.feedings_count, d.followers_count, d.primary_photo_path, d.primary_thumb_path,
     st_y(d.location::geometry) as lat, st_x(d.location::geometry) as lng,
     d.address_text, d.city, d.last_seen_at, d.created_at,
     public.fn_feeding_status(d.last_fed_at) as feeding_status,
     st_distance(d.location, st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography) as distance_m
-  from public.dogs d
+  from public.animals d
   where d.deleted_at is null
     and d.status in ('active', 'missing')
     and st_dwithin(d.location, st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography, p_radius_m)
+    and (p_species is null or d.species = p_species)
     and (p_feeding_status is null or public.fn_feeding_status(d.last_fed_at) = p_feeding_status)
     and (p_vaccinated is null or d.vaccination_status = p_vaccinated)
     and (p_sterilized is null or d.sterilization_status = p_sterilized)
     and (p_health is null or d.health_status = any (p_health))
     and (p_has_emergency is null or d.has_active_emergency = p_has_emergency)
-    and (p_puppies is null or d.has_puppies = p_puppies)
+    and (p_puppies is null or d.has_babies = p_puppies)
   order by distance_m
   limit least(coalesce(p_limit, 100), 200)
   offset greatest(coalesce(p_offset, 0), 0);
@@ -74,24 +76,25 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Viewport query for the map. Client clusters with supercluster; capped at 500.
 -- ---------------------------------------------------------------------------
-create or replace function public.dogs_in_bbox(
+create or replace function public.animals_in_bbox(
   p_min_lng double precision,
   p_min_lat double precision,
   p_max_lng double precision,
   p_max_lat double precision,
+  p_species public.species default null,
   p_feeding_status text default null,
   p_vaccinated public.tri_state default null,
   p_sterilized public.tri_state default null,
-  p_health public.dog_health_status[] default null,
+  p_health public.animal_health_status[] default null,
   p_has_emergency boolean default null,
   p_puppies boolean default null,
   p_limit integer default 500
 )
 returns table (
-  id uuid, name text, gender public.dog_gender, estimated_age_months integer,
-  temperament public.dog_temperament, status public.dog_status,
-  health_status public.dog_health_status, has_active_emergency boolean,
-  has_puppies boolean, vaccination_status public.tri_state,
+  id uuid, name text, species public.species, gender public.animal_gender, estimated_age_months integer,
+  temperament public.animal_temperament, status public.animal_status,
+  health_status public.animal_health_status, has_active_emergency boolean,
+  has_babies boolean, vaccination_status public.tri_state,
   sterilization_status public.tri_state, last_fed_at timestamptz,
   feedings_count integer, followers_count integer,
   primary_photo_path text, primary_thumb_path text,
@@ -104,24 +107,25 @@ stable
 set search_path = public, extensions
 as $$
   select
-    d.id, d.name, d.gender, d.estimated_age_months, d.temperament, d.status,
-    d.health_status, d.has_active_emergency, d.has_puppies,
+    d.id, d.name, d.species, d.gender, d.estimated_age_months, d.temperament, d.status,
+    d.health_status, d.has_active_emergency, d.has_babies,
     d.vaccination_status, d.sterilization_status, d.last_fed_at,
     d.feedings_count, d.followers_count, d.primary_photo_path, d.primary_thumb_path,
     st_y(d.location::geometry) as lat, st_x(d.location::geometry) as lng,
     d.address_text, d.city, d.last_seen_at, d.created_at,
     public.fn_feeding_status(d.last_fed_at) as feeding_status,
     null::double precision as distance_m
-  from public.dogs d
+  from public.animals d
   where d.deleted_at is null
     and d.status in ('active', 'missing')
     and d.location && st_makeenvelope(p_min_lng, p_min_lat, p_max_lng, p_max_lat, 4326)::geography
+    and (p_species is null or d.species = p_species)
     and (p_feeding_status is null or public.fn_feeding_status(d.last_fed_at) = p_feeding_status)
     and (p_vaccinated is null or d.vaccination_status = p_vaccinated)
     and (p_sterilized is null or d.sterilization_status = p_sterilized)
     and (p_health is null or d.health_status = any (p_health))
     and (p_has_emergency is null or d.has_active_emergency = p_has_emergency)
-    and (p_puppies is null or d.has_puppies = p_puppies)
+    and (p_puppies is null or d.has_babies = p_puppies)
   limit least(coalesce(p_limit, 500), 500);
 $$;
 
@@ -131,11 +135,12 @@ $$;
 create or replace function public.nearby_duplicate_check(
   p_lat double precision,
   p_lng double precision,
-  p_gender public.dog_gender default null,
+  p_species public.species default null,
+  p_gender public.animal_gender default null,
   p_radius_m integer default 150
 )
 returns table (
-  id uuid, name text, gender public.dog_gender, temperament public.dog_temperament,
+  id uuid, name text, species public.species, gender public.animal_gender, temperament public.animal_temperament,
   primary_thumb_path text, last_seen_at timestamptz, distance_m double precision,
   gender_match boolean
 )
@@ -144,12 +149,13 @@ stable
 set search_path = public, extensions
 as $$
   select
-    d.id, d.name, d.gender, d.temperament, d.primary_thumb_path, d.last_seen_at,
+    d.id, d.name, d.species, d.gender, d.temperament, d.primary_thumb_path, d.last_seen_at,
     st_distance(d.location, st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography) as distance_m,
     (p_gender is not null and d.gender = p_gender) as gender_match
-  from public.dogs d
+  from public.animals d
   where d.deleted_at is null
     and d.status = 'active'
+    and (p_species is null or d.species = p_species)
     and st_dwithin(d.location, st_setsrid(st_makepoint(p_lng, p_lat), 4326)::geography, least(p_radius_m, 1000))
   order by gender_match desc, distance_m
   limit 10;
@@ -158,13 +164,13 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Dog timeline: keyset pagination over activity_logs with actor info attached.
 -- ---------------------------------------------------------------------------
-create or replace function public.get_dog_timeline(
-  p_dog_id uuid,
+create or replace function public.get_animal_timeline(
+  p_animal_id uuid,
   p_before_id bigint default null,
   p_limit integer default 25
 )
 returns table (
-  id bigint, dog_id uuid, actor_id uuid, actor_name text, actor_avatar text,
+  id bigint, animal_id uuid, actor_id uuid, actor_name text, actor_avatar text,
   activity_type public.activity_type, summary text, metadata jsonb, created_at timestamptz
 )
 language sql
@@ -172,11 +178,11 @@ stable
 set search_path = public, extensions
 as $$
   select
-    a.id, a.dog_id, a.actor_id, p.display_name as actor_name, p.avatar_path as actor_avatar,
+    a.id, a.animal_id, a.actor_id, p.display_name as actor_name, p.avatar_path as actor_avatar,
     a.activity_type, a.summary, a.metadata, a.created_at
   from public.activity_logs a
   left join public.profiles p on p.id = a.actor_id
-  where a.dog_id = p_dog_id
+  where a.animal_id = p_animal_id
     and (p_before_id is null or a.id < p_before_id)
   order by a.id desc
   limit least(coalesce(p_limit, 25), 50);
@@ -209,7 +215,7 @@ as $$
     )
     and case p_kind
       when 'emergency_created' then s.notify_emergency_nearby
-      when 'new_dog_nearby' then s.notify_new_dog_nearby
+      when 'new_animal_nearby' then s.notify_new_animal_nearby
       else false
     end;
 $$;
@@ -218,7 +224,7 @@ revoke execute on function public.users_to_notify from public, anon, authenticat
 grant execute on function public.users_to_notify to service_role;
 
 create or replace function public.followers_to_notify(
-  p_dog_id uuid,
+  p_animal_id uuid,
   p_exclude uuid default null
 )
 returns table (user_id uuid, expo_push_token text)
@@ -228,10 +234,10 @@ security definer
 set search_path = public, extensions
 as $$
   select f.user_id, t.expo_push_token
-  from public.dog_follows f
-  join public.user_settings s on s.user_id = f.user_id and s.notify_followed_dogs
+  from public.animal_follows f
+  join public.user_settings s on s.user_id = f.user_id and s.notify_followed_animals
   join public.push_tokens t on t.user_id = f.user_id and t.revoked_at is null
-  where f.dog_id = p_dog_id
+  where f.animal_id = p_animal_id
     and (p_exclude is null or f.user_id <> p_exclude);
 $$;
 
@@ -254,7 +260,7 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Moderation: soft delete (the only delete path for dogs).
 -- ---------------------------------------------------------------------------
-create or replace function public.admin_soft_delete_dog(p_dog_id uuid)
+create or replace function public.admin_soft_delete_animal(p_animal_id uuid)
 returns void
 language plpgsql
 security definer
@@ -264,6 +270,6 @@ begin
   if not public.is_moderator() then
     raise exception 'moderator role required';
   end if;
-  update public.dogs set deleted_at = now() where id = p_dog_id;
+  update public.animals set deleted_at = now() where id = p_animal_id;
 end;
 $$;

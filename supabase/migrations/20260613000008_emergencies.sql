@@ -1,10 +1,10 @@
 -- ---------------------------------------------------------------------------
--- emergency_reports: dog_id nullable — emergencies can be reported for dogs
+-- emergency_reports: animal_id nullable — emergencies can be reported for dogs
 -- not yet in the system.
 -- ---------------------------------------------------------------------------
 create table public.emergency_reports (
   id uuid primary key default gen_random_uuid(),
-  dog_id uuid references public.dogs (id) on delete set null,
+  animal_id uuid references public.animals (id) on delete set null,
   reported_by uuid not null default auth.uid() references public.profiles (id),
   emergency_type public.emergency_type not null,
   severity public.severity_level not null,
@@ -22,7 +22,7 @@ create table public.emergency_reports (
 
 create index emergency_reports_gist on public.emergency_reports using gist (location);
 create index emergency_reports_status_idx on public.emergency_reports (status, created_at desc);
-create index emergency_reports_dog_idx on public.emergency_reports (dog_id) where dog_id is not null;
+create index emergency_reports_animal_idx on public.emergency_reports (animal_id) where animal_id is not null;
 
 -- ---------------------------------------------------------------------------
 -- New emergency: flag the dog, log it, fan out push to nearby users.
@@ -34,22 +34,22 @@ security definer
 set search_path = public, extensions
 as $$
 begin
-  if new.dog_id is not null then
-    update public.dogs
+  if new.animal_id is not null then
+    update public.animals
     set has_active_emergency = true,
         health_status = case
-          when new.emergency_type in ('injury', 'accident') then 'injured'::public.dog_health_status
-          when new.emergency_type = 'illness' then 'sick'::public.dog_health_status
+          when new.emergency_type in ('injury', 'accident') then 'injured'::public.animal_health_status
+          when new.emergency_type = 'illness' then 'sick'::public.animal_health_status
           else health_status
         end,
         status = case
-          when new.emergency_type = 'missing' then 'missing'::public.dog_status
+          when new.emergency_type = 'missing' then 'missing'::public.animal_status
           else status
         end
-    where id = new.dog_id;
+    where id = new.animal_id;
 
     perform public.fn_log_activity(
-      new.dog_id, new.reported_by, 'emergency_created', 'emergency_reports', new.id::text,
+      new.animal_id, new.reported_by, 'emergency_created', 'emergency_reports', new.id::text,
       initcap(replace(new.emergency_type::text, '_', ' ')) || ' emergency reported (' || new.severity::text || ')',
       jsonb_build_object(
         'emergency_id', new.id,
@@ -63,7 +63,7 @@ begin
   perform public.fn_notify_fanout(jsonb_build_object(
     'type', 'emergency_created',
     'emergency_id', new.id,
-    'dog_id', new.dog_id,
+    'animal_id', new.animal_id,
     'emergency_type', new.emergency_type,
     'severity', new.severity,
     'lat', extensions.st_y(new.location::extensions.geometry),
@@ -90,16 +90,16 @@ set search_path = public, extensions
 as $$
 begin
   if old.status in ('open', 'in_progress') and new.status in ('resolved', 'false_alarm') then
-    if new.dog_id is not null then
+    if new.animal_id is not null then
       if not exists (
         select 1 from public.emergency_reports
-        where dog_id = new.dog_id and status in ('open', 'in_progress') and id <> new.id
+        where animal_id = new.animal_id and status in ('open', 'in_progress') and id <> new.id
       ) then
-        update public.dogs set has_active_emergency = false where id = new.dog_id;
+        update public.animals set has_active_emergency = false where id = new.animal_id;
       end if;
 
       perform public.fn_log_activity(
-        new.dog_id, coalesce(new.resolved_by, auth.uid()), 'emergency_resolved',
+        new.animal_id, coalesce(new.resolved_by, auth.uid()), 'emergency_resolved',
         'emergency_reports', new.id::text,
         'Emergency marked ' || replace(new.status::text, '_', ' '),
         jsonb_build_object('emergency_id', new.id, 'resolution_notes', new.resolution_notes)
@@ -131,5 +131,5 @@ create policy "emergencies_update_authenticated" on public.emergency_reports
 -- Clients can update only lifecycle + detail columns; notified_count is server-owned.
 revoke update, delete on public.emergency_reports from anon, authenticated;
 grant update (emergency_type, severity, description, photo_paths, address_text,
-              status, resolved_by, resolved_at, resolution_notes, dog_id)
+              status, resolved_by, resolved_at, resolution_notes, animal_id)
   on public.emergency_reports to authenticated;

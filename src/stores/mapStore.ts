@@ -2,22 +2,24 @@ import { create } from 'zustand';
 
 import { DEFAULT_CENTER, DEFAULT_RADIUS_M } from '@/constants/config';
 import type { FeedingStatus } from '@/constants/feeding';
-import type { DogHealthStatus, LatLng, TriState } from '@/types/domain';
+import type { AnimalHealthStatus, LatLng, Species, TriState } from '@/types/domain';
 
-/** Shared by Map + Dogs tabs; maps 1:1 onto the RPC filter params. */
-export interface DogFilters {
+/** Shared by Map + Strays tabs; maps 1:1 onto the RPC filter params. */
+export interface AnimalFilters {
+  species?: Species;
   feedingStatus?: FeedingStatus;
   vaccinated?: TriState;
   sterilized?: TriState;
-  health: DogHealthStatus[];
+  health: AnimalHealthStatus[];
   emergencyOnly?: boolean;
   puppies?: boolean;
 }
 
-export const EMPTY_FILTERS: DogFilters = { health: [] };
+export const EMPTY_FILTERS: AnimalFilters = { health: [] };
 
-export function countActiveFilters(f: DogFilters): number {
+export function countActiveFilters(f: AnimalFilters): number {
   return (
+    (f.species ? 1 : 0) +
     (f.feedingStatus ? 1 : 0) +
     (f.vaccinated ? 1 : 0) +
     (f.sterilized ? 1 : 0) +
@@ -35,10 +37,10 @@ interface MapState {
   /** True when searchCenter came from the device GPS. */
   followingUser: boolean;
   radiusM: number;
-  filters: DogFilters;
+  filters: AnimalFilters;
   setSearchCenter: (center: LatLng, label: string, followingUser?: boolean) => void;
   setRadiusM: (radiusM: number) => void;
-  setFilters: (filters: DogFilters) => void;
+  setFilters: (filters: AnimalFilters) => void;
   resetFilters: () => void;
 }
 

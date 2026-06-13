@@ -3,14 +3,14 @@ import { useEffect, useRef, useState } from 'react';
 import { Platform, Text, View } from 'react-native';
 import MapView, { Marker, PROVIDER_DEFAULT, PROVIDER_GOOGLE } from 'react-native-maps';
 
-import { DEFAULT_DELTA, type DogMapProps, type MapRegion } from './DogMap.types';
+import { DEFAULT_DELTA, type AnimalMapProps, type MapRegion } from './AnimalMap.types';
 import { clusterExpansionRegion, useClusters } from './useClusters';
 
 // Google provider needs a native key on iOS; fall back to Apple Maps until set.
 const iosHasGoogleKey = Constants.expoConfig?.extra?.hasGoogleMapsIosKey === true;
 const provider = Platform.OS === 'ios' && !iosHasGoogleKey ? PROVIDER_DEFAULT : PROVIDER_GOOGLE;
 
-export function DogMap({
+export function AnimalMap({
   points,
   initialRegion,
   onRegionChange,
@@ -19,7 +19,7 @@ export function DogMap({
   showsUserLocation = false,
   center,
   centerKey,
-}: DogMapProps) {
+}: AnimalMapProps) {
   const mapRef = useRef<MapView>(null);
   const [region, setRegion] = useState<MapRegion>(initialRegion);
   const clusters = useClusters(points, region);
@@ -45,7 +45,7 @@ export function DogMap({
       showsUserLocation={showsUserLocation}
       showsMyLocationButton={false}
       toolbarEnabled={false}
-      accessibilityLabel="Map of street dogs"
+      accessibilityLabel="Map of strays"
     >
       {clusters.map((point) =>
         point.isCluster ? (
@@ -54,7 +54,7 @@ export function DogMap({
             coordinate={{ latitude: point.latitude, longitude: point.longitude }}
             anchor={{ x: 0.5, y: 0.5 }}
             tracksViewChanges={false}
-            accessibilityLabel={`Group of ${point.count} dogs`}
+            accessibilityLabel={`Group of ${point.count} strays`}
             onPress={() => {
               mapRef.current?.animateToRegion(clusterExpansionRegion(points, point, region), 300);
             }}
@@ -81,7 +81,7 @@ export function DogMap({
             coordinate={{ latitude: point.latitude, longitude: point.longitude }}
             anchor={{ x: 0.5, y: 0.5 }}
             tracksViewChanges={false}
-            accessibilityLabel="Dog location"
+            accessibilityLabel="Animal location"
             onPress={() => onPointPress?.(point.id)}
           >
             <View

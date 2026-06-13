@@ -1,9 +1,9 @@
 import { Text, View } from 'react-native';
 
-import { getBadges, type DogBadgeLike } from '@/lib/dogStatus';
+import { getBadges, type AnimalBadgeLike } from '@/lib/animalStatus';
 
-export function DogStatusBadges({ dog, max }: { dog: DogBadgeLike; max?: number }) {
-  const badges = getBadges(dog);
+export function AnimalStatusBadges({ animal, max }: { animal: AnimalBadgeLike; max?: number }) {
+  const badges = getBadges(animal);
   const visible = max ? badges.slice(0, max) : badges;
   if (visible.length === 0) return null;
 

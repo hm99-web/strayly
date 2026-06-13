@@ -12,9 +12,9 @@ grant usage on schema public to anon, authenticated, service_role;
 -- ---------------------------------------------------------------------------
 grant select on
   public.profiles,
-  public.dogs,
-  public.dog_photos,
-  public.dog_locations,
+  public.animals,
+  public.animal_photos,
+  public.animal_locations,
   public.feeding_records,
   public.vaccination_records,
   public.medical_records,
@@ -29,7 +29,7 @@ grant select on
   public.user_settings,
   public.notifications,
   public.push_tokens,
-  public.dog_follows,
+  public.animal_follows,
   public.trust_events,
   public.content_reports
 to authenticated;
@@ -41,15 +41,15 @@ to authenticated;
 -- lifecycle/detail columns — those grants already exist.
 -- ---------------------------------------------------------------------------
 grant insert, update on public.user_settings to authenticated;
-grant insert, update, delete on public.dog_photos to authenticated;
-grant insert on public.dog_locations to authenticated;
+grant insert, update, delete on public.animal_photos to authenticated;
+grant insert on public.animal_locations to authenticated;
 grant insert, update, delete on public.feeding_records to authenticated;
 grant insert, update, delete on public.vaccination_records to authenticated;
 grant insert, update, delete on public.medical_records to authenticated;
 grant insert on public.emergency_reports to authenticated;
 grant delete on public.notifications to authenticated;
 grant insert, update, delete on public.push_tokens to authenticated;
-grant insert, delete on public.dog_follows to authenticated;
+grant insert, delete on public.animal_follows to authenticated;
 grant insert, update on public.comments to authenticated;
 grant insert, delete on public.upvotes to authenticated;
 grant insert, update on public.content_reports to authenticated;
